@@ -6,6 +6,6 @@ arg-sample \
   --ntimes 20 --maxtime 2e5 -c 20 -n 50 \
   -o "/outargs_scaffold_1a_750000001_900000000"
 
-# 2) Posterior-mean TMRCA at every site
+# 2) Posterior-mean TMRCA 
 arg-extract-tmrca "/outargs_scaffold_1a_750000001_900000000.%d.smc.gz" \
 > "/scaffold_1a_750000001_900000000/outargs_scaffold_1a_750000001_900000000.tmrca.txt"
