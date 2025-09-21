@@ -45,11 +45,6 @@ y_max <- max(plot_df$FST, na.rm = TRUE)
 y_max <- ifelse(is.finite(y_max) && y_max > 0, y_max, 0.05)
 
 
-
-
-
-
-
 #visualize per contig
 library(tidyverse)
 library(readxl)
