@@ -108,7 +108,6 @@ winDT <- split_to_windows_region(tm, win, x_start, x_end)
 stopifnot(nrow(winDT) > 0L)
 winDT <- winDT %>% mutate(mid_bp = (w_start + w_end)/2, mid_mb = mid_bp/1e6)
 
-
 # ---------- FLAGS (young/mid/old) ----------
 winDT <- winDT %>%
   group_by(chrom) %>%
