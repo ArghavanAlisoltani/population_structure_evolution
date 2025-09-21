@@ -11,7 +11,7 @@ tbl<-data.frame(table(fstanooverlap$NR.ID))
 in_csv   <- "fst_per_site_merged_rowmax_lt0.15.csv"
 scaffold <- "scaffold_1b"        # <- put your scaffold/contig name here (must match CHROM)
 start_bp <- 867985277          # <- region start (bp)
-end_bp   <- 867988573          # <- region end (b)
+end_bp   <- 867988573          # <- region end (bp)
 
 # Name the 3 comparisons exactly as they appear as column names in the CSV
 # (e.g., "PROC1_vs_PROC3.weir.fst", etc.)
