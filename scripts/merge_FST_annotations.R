@@ -1,7 +1,7 @@
 # install.packages(c("readr","readxl","dplyr","tibble"))
 # if (!requireNamespace("BiocManager", quietly = TRUE)) install.packages("BiocManager")
 # BiocManager::install(c("GenomicRanges","IRanges"))
-setwd("~/Desktop/OSU_projects/conifers/LP/FSTcalc/provenances/100_greedy/fst_per_sit")
+setwd("~/Desktop/OSU_projects/conifers/LP/FSTcalc/provenances/100_greedy/fst_per_site")
 
 # ---- Inputs you change ----
 
