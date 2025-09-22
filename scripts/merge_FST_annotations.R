@@ -24,6 +24,6 @@ P34_top<-fstall[fstall$PROC3_vs_PROC4>=0.25,]
 
 fstall$scaff_pos<-paste(fstall$CHROM,fstall$POS,sep = ":")
 anno$scaff_pos<-paste(anno$X.CHROM,anno$POS,sep = ":")
-merged<-merge(fstall,anno, by="scaff_pos", all.x=T)
+merged<-merge(fstall, anno, by="scaff_pos", all.x=T)
 fwrite(merged, "All_fst_merged_with_anno.tsv", sep = "\t")
 
