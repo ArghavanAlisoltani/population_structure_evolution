@@ -3,7 +3,7 @@
 # BiocManager::install(c("GenomicRanges","IRanges"))
 setwd("~/Desktop/OSU_projects/conifers/LP/FSTcalc/provenances/100_greedy/fst_per_site")
 
-# ---- Inputs you change ----
+# --- Inputs you change ---
 
 library(readr)
 library(readxl)
