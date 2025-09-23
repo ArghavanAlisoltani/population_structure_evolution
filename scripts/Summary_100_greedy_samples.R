@@ -61,11 +61,11 @@ gg
 ggsave("fst_bin_summary_procs345_R.png", gg, width = 8, height = 5, dpi = 150)
 
 
-# ============================
+# ========================================================
 # Pairwise FST -> lower-tri table
 # Updated for files like:
 #   /mnt/data/PROC1_vs_PROC2.weir.fst
-# ============================
+# ========================================================
 library(dplyr)
 library(readr)
 library(stringr)
