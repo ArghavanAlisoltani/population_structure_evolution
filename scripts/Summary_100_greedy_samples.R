@@ -5,9 +5,9 @@ library(GenomicRanges)
 library(ggplot2)
 setwd("~/Desktop/OSU_projects/conifers/LP/FSTcalc/provenances/100_greedy/fst_per_site")
 
-# ============================
+# ========================================================
 # Inputs
-# ============================
+# ========================================================
 
 # Vector of vcftools per-site FST files (one per comparison)
 files <- c(
