@@ -7,6 +7,7 @@ setwd("~/Desktop/OSU_projects/conifers/LP/FSTcalc/provenances/100_greedy/fst_per
 
 # ============================
 # Inputs
+# ============================
 
 # Vector of vcftools per-site FST files (one per comparison)
 files <- c(
