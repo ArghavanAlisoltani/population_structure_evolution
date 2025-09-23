@@ -207,7 +207,7 @@ message("Saved:\n  ", out_pairs, "\n  ", out_lower)
 
 # ========================================================
 # Pairwise global FST + block-jackknife CIs
-# ============================
+# ========================================================
 library(dplyr)
 library(readr)
 library(stringr)
