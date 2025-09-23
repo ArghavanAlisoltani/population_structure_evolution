@@ -205,7 +205,7 @@ write.table(lower_table, file = out_lower, sep = ",", row.names = TRUE, col.name
 
 message("Saved:\n  ", out_pairs, "\n  ", out_lower)
 
-# ============================
+# ========================================================
 # Pairwise global FST + block-jackknife CIs
 # ============================
 library(dplyr)
