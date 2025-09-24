@@ -167,3 +167,6 @@ message(sprintf(
   "Wrote %d scaffolds to %s (QC) and %s (breakpoints). %d satisfied the balance constraint (MAX_IMBALANCE=%.2f).",
   nrow(qc), qc_out, bp_out, sum(qc$satisfied, na.rm = TRUE), MAX_IMBALANCE
 ))
+
+write.table(qc, file = "breakpoints.qc.tsv", sep = "\t", quote = FALSE, row.names = FALSE)
+
