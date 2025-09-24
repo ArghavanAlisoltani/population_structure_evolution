@@ -1,6 +1,6 @@
 # find_breakpoints.R
 # Input: 2-column TSV from your VCF (#CHROM, POS), header present
-setwd("~/")
+setwd("~/path/to/folder/")
 # ======= User settings =======
 infile        <- "positions_poly_s100_All_1a1b_renamed.txt"  # 2 cols: CHROM, POS (header required)
 qc_out        <- "breakpoints.qc.tsv"                        # detailed, per-scaffold QC table
