@@ -83,4 +83,11 @@ write_csv(fst_clean, file.path(fst_dir, "fst_per_site_merged_clean_v1.csv"))
 write_csv(fst_lt005, file.path(fst_dir, "fst_per_site_merged_rowmax_lt0.15_v1.csv"))
 
 message("Kept ", nrow(fst_lt005), " positions with row_max > 0.15 out of ", nrow(fst_clean))
+tbl<-data.frame(table(fst_clean$CHROM))
+list_24<- fread(input = "Include_List_richness_analysis.txt",sep="\t")
+
+data_richness<-fst_clean[fst_clean$CHROM %in% list_24$include_list, -c(6)]
+fwrite(data_richness, "24_scaff_fst_for_window_richness.tsv", sep="\t")
+
+
 
