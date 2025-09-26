@@ -1,4 +1,4 @@
-#pip install pandas numpy scipy statsmodels matplotlib python-pptx
+## pip install pandas numpy scipy statsmodels matplotlib python-pptx
 #!/usr/bin/env python3
 """
 FST window enrichment with Binomial, Poisson, Beta–Binomial, Negative Binomial;
