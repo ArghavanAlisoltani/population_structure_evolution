@@ -116,5 +116,6 @@ p <- ggplot(winDT, aes(x = mid_mb, y = y_wmean)) +
   theme(panel.grid.minor = element_blank())
 
 print(p)
+
 ggsave(out_png, p, width = 18, height = 10, dpi = 300)
 ggsave(out_pdf, p, width = 18, height = 10)
