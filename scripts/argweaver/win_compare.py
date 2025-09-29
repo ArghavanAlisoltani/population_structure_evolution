@@ -37,6 +37,7 @@ import math
 # =======================
 # CONFIG (edit as needed)
 # =======================
+#change the file names
 A_PATH = "windows_150Mb_equal_lenght.tsv"
 B_PATH = "balanced_scaffold_windows_150Mb.tsv"
 
