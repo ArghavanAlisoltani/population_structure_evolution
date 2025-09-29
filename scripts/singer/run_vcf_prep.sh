@@ -10,6 +10,7 @@
 #SBATCH --error="/scratch/arghavan/LP/singer/scaffold_1a_single/err.txt"
 #SBATCH --job-name="singer_prep"
 
+#load bcftools
 module load bcftools/1.8
 
 # ------------ EDIT THESE ------------
