@@ -10,7 +10,7 @@
 #SBATCH --error="/scratch/arghavan/LP/singer/scaffold_1a_single/err.txt"
 #SBATCH --job-name="singer_prep"
 
-module load bcftools
+module load bcftools/1.8
 
 # ------------ EDIT THESE ------------
 SRC_VCF="/scratch/arghavan/LP/subsampling/s100_All_1a1b_renamed.filtered.vcf.gz"  # .vcf or .vcf.gz
