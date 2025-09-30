@@ -3,8 +3,8 @@ bcftools view -Oz -o split_poly_s100_scaffolds.vcf.gz \
   split_poly_s100_scaffolds.vcf
 
 # (optional but smart) ensure position-sorted before indexing
-bcftools sort -Oz -o split_poly_s100_scaffolds.vcf.gz \
- split_poly_s100_scaffolds.vcf.vcf
+bcftools sort -Oz -o split_poly_s100_scaffolds.sorted.vcf.gz \
+ split_poly_s100_scaffolds.vcf.gz
 
 # 1) CSI indexes (not TBI)
 module load bcftools/1.8
