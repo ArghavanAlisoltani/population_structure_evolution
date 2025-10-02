@@ -12,7 +12,6 @@
 
 module load vcftools/0.1.16
 
-
 # === INPUTS ===
 VCF="/scratch/arghavan/LP/vcf_v1/Aria_processed/S10_taxa_filter/renamed_samples_1489_merged_sorted_tworules.vcf"                      # your single input VCF/BCF with ALL samples
 POPDIR="all_population/"                       # directory containing your population lists (*.txt)
