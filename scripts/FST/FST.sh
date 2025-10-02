@@ -8,7 +8,7 @@
 #SBATCH --mail-type=FAIL     # Events options are job BEGIN, END, NONE, FAIL, R$
 #SBATCH --output="/scratch/arghavan/LP/FSTcalc/proc/out.txt"  # Path for output must alread$
 #SBATCH --error="/scratch/arghavan/LP/FSTcalc/proc/err.txt"   # Path for errors must alread$
-#SBATCH --job-name="FSTallLP"       # Name of job
+#SBATCH --job-name="FST_all_LP"       # Name of job
 
 module load vcftools/0.1.16
 
