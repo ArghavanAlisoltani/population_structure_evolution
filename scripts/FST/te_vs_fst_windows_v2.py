@@ -3,7 +3,6 @@
 """
 TE overlap & density vs FST-enriched windows
 — Separate results for 3vs4, 3vs5, 4vs5 + panel figures
-— Adds *count-based* (no offset) comparisons alongside density-based analyses
 
 Inputs (same folder as this script):
   fst_window_counts_tests_win10000000_ov2000000.csv
@@ -22,18 +21,13 @@ TE TSV (outside this folder):
   Columns (tab-separated): seqid, source, sequence_ontology, start, end, score, strand
 
 Outputs (in ./te_vs_fst_out/):
-  - fst_windows_with_TEcounts.tsv
-  - te_density_group_summary.tsv            (density track, all comps)
-  - te_density_by_type_<comp>.tsv           (density track, per TE type)
-  - te_count_group_summary.tsv              (count track, all comps)
-  - te_count_by_type_<comp>.tsv             (count track, per TE type)
+  - fst_windows_with_TEcounts.tsv  (augmented table: TE counts & densities)
+  - te_density_group_summary.tsv   (group-level stats & model summaries for all 3 comps)
+  - te_density_by_type_<comp>.tsv  (per-TE-type model results with FDR per comparison)
   - figures:
-      te_density_violin_box_PANEL.png
-      te_type_rate_ratio_forest_<comp>.png
-      te_type_rate_ratio_forest_PANEL.png
-      te_count_violin_box_PANEL.png
-      te_type_count_rate_ratio_forest_<comp>.png
-      te_type_count_rate_ratio_forest_PANEL.png
+      te_density_violin_box_PANEL.png   (3-row panel)
+      te_type_rate_ratio_forest_<comp>.png  (per comp)
+      te_type_rate_ratio_forest_PANEL.png   (compact 3-row forest)
   - PowerPoint: TE_vs_FST_report.pptx
 """
 
@@ -183,7 +177,7 @@ def dispersion_ratio(y, mu, df_adj=1):
 def clamp_exp(x):
     return float(np.exp(np.clip(x, -700, 700)))
 
-def fit_glm_poisson(y, X, offset=None):
+def fit_glm_poisson(y, X, offset):
     fam = families.Poisson(link=links.Log())
     model = GLM(y, X, family=fam, offset=offset)
     res = model.fit()
@@ -197,21 +191,17 @@ def estimate_nb_alpha(y, mu):
     alpha = numer / denom
     return float(max(alpha, 1e-8))
 
-def fit_glm_nb(y, X, offset=None, alpha=1.0):
+def fit_glm_nb(y, X, offset, alpha):
     fam = families.NegativeBinomial(alpha=alpha, link=links.Log())
     model = GLM(y, X, family=fam, offset=offset)
     res = model.fit()
     return res
 
-def glm_compare_counts(y, group, offset_log=None, prefer_nb_if_overdispersed=True):
-    """
-    GLM: count ~ group (0/1), optional offset = log(exposure)
-    Returns dict(coef,se,z,p,RR,CI,dispersion,family,res).
-    """
+def glm_compare_counts(y, group, offset_log, prefer_nb_if_overdispersed=True):
     X = pd.DataFrame({"intercept": 1.0, "group": group.astype(float)})
 
     # Poisson
-    res_p = fit_glm_poisson(y, X, offset=offset_log)
+    res_p = fit_glm_poisson(y, X, offset_log)
     mu_p  = res_p.fittedvalues
     disp  = dispersion_ratio(y, mu_p)
 
@@ -220,11 +210,11 @@ def glm_compare_counts(y, group, offset_log=None, prefer_nb_if_overdispersed=Tru
 
     if prefer_nb_if_overdispersed and np.isfinite(disp) and disp > 1.5:
         alpha = estimate_nb_alpha(y, mu_p)
-        res_nb = fit_glm_nb(y, X, offset=offset_log, alpha=alpha)
+        res_nb = fit_glm_nb(y, X, offset_log, alpha)
         res_used = res_nb
         family_used = f"NegBin(alpha={alpha:.3g})"
 
-    b  = res_used.params.get("group", np.nan)
+    b = res_used.params.get("group", np.nan)
     se = res_used.bse.get("group", np.nan)
     z  = (b / se) if se and np.isfinite(se) and se > 0 else np.nan
     p  = 2 * (1 - norm.cdf(abs(z))) if np.isfinite(z) else np.nan
@@ -253,31 +243,28 @@ def global_rate_ratio_test(k_sig, e_sig, k_nsig, e_nsig):
 # =========================
 # Plots (panels)
 # =========================
-def violin_box_panel(df_aug: pd.DataFrame, comp_masks: dict, outdir: Path, value_col="TE_density", tag="density"):
+def violin_box_panel(df_aug: pd.DataFrame, comp_masks: dict, outdir: Path):
     """
     3-row panel: each row is a comparison (3vs4, 3vs5, 4vs5).
-    value_col: "TE_density" (density track) or "TE_count" (count track)
-    tag: used in output filename
     """
-    fig, axes = plt.subplots(3, 1, figsize=(7.5, 9), sharey=(value_col=="TE_density"))
+    fig, axes = plt.subplots(3, 1, figsize=(7.5, 9), sharey=True)
     for i, comp in enumerate(["3vs4","3vs5","4vs5"]):
         mask = comp_masks[comp]
-        data = [df_aug.loc[~mask, value_col], df_aug.loc[mask, value_col]]
+        data = [df_aug.loc[~mask, "TE_density"], df_aug.loc[mask, "TE_density"]]
         ax = axes[i]
         ax.violinplot(data, positions=[0,1], showmeans=True, widths=0.9)
         ax.boxplot(data, positions=[0,1], widths=0.25, showcaps=True, showfliers=False)
         ax.set_xticks([0,1], ["not significant", "significant"])
-        ax.set_ylabel(f"{'TEs / bp' if value_col=='TE_density' else 'TEs per window'}")
-        title_mid = "TE density" if value_col=="TE_density" else "TE count"
-        ax.set_title(f"{title_mid} by FST significance — {comp} (q_poi < 0.05)")
+        ax.set_ylabel("TE density (TEs / bp)")
+        ax.set_title(f"TE density by FST significance — {comp} (q_poi < 0.05)")
         ax.grid(alpha=0.2, axis="y")
     axes[-1].set_xlabel("Window group")
     fig.tight_layout()
-    out = outdir / f"te_{tag}_violin_box_PANEL.png"
+    out = outdir / "te_density_violin_box_PANEL.png"
     fig.savefig(out, dpi=220); plt.close(fig)
     return out
 
-def forest_per_comp(df_types: pd.DataFrame, comp: str, outdir: Path, tag="density"):
+def forest_per_comp(df_types: pd.DataFrame, comp: str, outdir: Path):
     d = df_types.sort_values("RR", ascending=False).copy()
     y = np.arange(len(d))[::-1]
     fig, ax = plt.subplots(figsize=(7.5, 0.35*max(6, len(d))))
@@ -288,13 +275,13 @@ def forest_per_comp(df_types: pd.DataFrame, comp: str, outdir: Path, tag="densit
     ax.set_yticks(y, d["TE_type"])
     ax.set_xscale("log")
     ax.set_xlabel("Rate ratio (significant / not)   [log scale]")
-    ax.set_title(f"Per-TE-type enrichment in significant windows — {comp} ({tag})")
+    ax.set_title(f"Per-TE-type enrichment in significant windows — {comp}")
     ax.grid(alpha=0.2, axis="x")
-    out = outdir / f"te_type_{tag}_rate_ratio_forest_{comp}.png"
+    out = outdir / f"te_type_rate_ratio_forest_{comp}.png"
     fig.tight_layout(); fig.savefig(out, dpi=220); plt.close(fig)
     return out
 
-def compact_forest_panel(per_comp_types: dict, outdir: Path, tag="density", max_types=12):
+def compact_forest_panel(per_comp_types: dict, outdir: Path, max_types=12):
     """
     Compact 3-row panel; each row shows top-N TE types by significance (q) for that comparison.
     """
@@ -310,10 +297,10 @@ def compact_forest_panel(per_comp_types: dict, outdir: Path, tag="density", max_
         ax.set_yticks(y, d["TE_type"])
         ax.set_xscale("log")
         ax.set_xlabel("Rate ratio (sig/not)   [log scale]")
-        ax.set_title(f"Top TE types (by FDR) — {comp} ({tag})")
+        ax.set_title(f"Top TE types (by FDR) — {comp}")
         ax.grid(alpha=0.2, axis="x")
     fig.tight_layout()
-    out = outdir / f"te_type_{tag}_rate_ratio_forest_PANEL.png"
+    out = outdir / "te_type_rate_ratio_forest_PANEL.png"
     fig.savefig(out, dpi=220); plt.close(fig)
     return out
 
@@ -349,135 +336,79 @@ def main():
 
     # Per-comparison analyses
     comps = ["3vs4","3vs5","4vs5"]
-
-    # --- Density track containers ---
-    comp_masks_density = {}
-    per_comp_overall_density = {}
-    per_comp_types_density = {}
-    per_comp_forest_density = {}
-
-    # --- Count track containers ---
-    comp_masks_count = {}
-    per_comp_overall_count = {}
-    per_comp_types_count = {}
-    per_comp_forest_count = {}
+    comp_masks = {}           # {comp: boolean Series is_sig_comp}
+    per_comp_overall = {}     # {comp: dict of overall stats}
+    per_comp_types = {}       # {comp: DataFrame of per-type RR + FDR}
+    per_comp_forest_png = {}  # {comp: path}
 
     for comp in comps:
         qcol = f"q_poi_{comp}"
         if qcol not in df_aug.columns:
             raise ValueError(f"Expected Poisson q-value column missing: {qcol}")
 
-        # Mask: significant windows for THIS comparison
+        # mask
         is_sig = (df_aug[qcol] < Q_CUTOFF)
+        comp_masks[comp] = is_sig
 
-        # =========================
-        # DENSITY TRACK (offset = log WIN_LEN)
-        # =========================
-        y_den = df_aug["TE_count"].astype(int).to_numpy()
-        grp   = is_sig.astype(int).to_numpy()
-        off   = np.log(df_aug["WIN_LEN"].astype(float).to_numpy())
+        # overall model: TE_count ~ is_sig + offset(log(WIN_LEN))
+        y = df_aug["TE_count"].astype(int).to_numpy()
+        group = is_sig.astype(int).to_numpy()
+        offset = np.log(df_aug["WIN_LEN"].astype(float).to_numpy())
 
-        res_used_den = glm_compare_counts(y_den, grp, offset_log=off)
-        model_used_den = res_used_den["family"]
+        res_used = glm_compare_counts(y, group, offset)
+        model_used = res_used["family"]
 
-        # global RR (rates per bp)
+        # global rate-ratio
         k_sig   = int(df_aug.loc[is_sig,  "TE_count"].sum())
         e_sig   = float(df_aug.loc[is_sig,  "WIN_LEN"].sum())
         k_nsig  = int(df_aug.loc[~is_sig, "TE_count"].sum())
         e_nsig  = float(df_aug.loc[~is_sig, "WIN_LEN"].sum())
-        rr_glob_den, ci_lo_den, ci_hi_den, p_glob_den = global_rate_ratio_test(k_sig, e_sig, k_nsig, e_nsig)
+        rr_glob, ci_lo_glob, ci_hi_glob, p_glob = global_rate_ratio_test(k_sig, e_sig, k_nsig, e_nsig)
 
-        # per-TE-type (density)
-        rows_den = []
+        # per-type models (BH-FDR per comparison)
+        rows = []
         for t in te_types:
             y_t = df_aug[f"TE_{t}"].astype(int).to_numpy()
-            res_t = glm_compare_counts(y_t, grp, offset_log=off)
-            rows_den.append({
+            res_t = glm_compare_counts(y_t, group, offset)
+            rows.append({
                 "TE_type": t,
                 "family": res_t["family"],
                 "RR": res_t["RR"], "RR_CI_lo": res_t["RR_CI_lo"], "RR_CI_hi": res_t["RR_CI_hi"],
                 "p": res_t["p"], "dispersion": res_t["dispersion"]
             })
-        df_types_den = pd.DataFrame(rows_den)
-        df_types_den["q"] = multipletests(df_types_den["p"].fillna(1.0), method="fdr_bh")[1]
-        df_types_den = df_types_den.sort_values("q")
+        df_types_comp = pd.DataFrame(rows)
+        df_types_comp["q"] = multipletests(df_types_comp["p"].fillna(1.0), method="fdr_bh")[1]
+        df_types_comp = df_types_comp.sort_values("q")
 
-        comp_masks_density[comp] = is_sig
-        per_comp_overall_density[comp] = {
-            "model_used": model_used_den,
-            "RR_overall": res_used_den["RR"], "RR_CI_lo": res_used_den["RR_CI_lo"],
-            "RR_CI_hi": res_used_den["RR_CI_hi"], "p_model": res_used_den["p"],
-            "dispersion_est": res_used_den["dispersion"],
-            "global_RR": rr_glob_den, "global_CI_lo": ci_lo_den, "global_CI_hi": ci_hi_den, "p_global": p_glob_den,
+        # store per-comp results
+        per_comp_overall[comp] = {
+            "model_used": model_used,
+            "RR_overall": res_used["RR"], "RR_CI_lo": res_used["RR_CI_lo"], "RR_CI_hi": res_used["RR_CI_hi"],
+            "p_model": res_used["p"], "dispersion_est": res_used["dispersion"],
+            "global_RR": rr_glob, "global_CI_lo": ci_lo_glob, "global_CI_hi": ci_hi_glob, "p_global": p_glob,
             "n_sig": int(is_sig.sum()), "n_not": int((~is_sig).sum())
         }
-        per_comp_types_density[comp] = df_types_den
-        # write per-comp table (density)
-        OUTDIR.mkdir(parents=True, exist_ok=True)
-        df_types_den.to_csv(OUTDIR / f"te_density_by_type_{comp}.tsv", sep="\t", index=False)
-        # forest (density)
-        per_comp_forest_density[comp] = forest_per_comp(df_types_den, comp, OUTDIR, tag="density")
+        per_comp_types[comp] = df_types_comp
 
-        # =========================
-        # COUNT TRACK (NO offset)
-        # =========================
-        y_cnt = df_aug["TE_count"].astype(int).to_numpy()
-        res_used_cnt = glm_compare_counts(y_cnt, grp, offset_log=None)  # <-- no offset
-        model_used_cnt = res_used_cnt["family"]
+        # write per-comp types table
+        out_types = OUTDIR / f"te_density_by_type_{comp}.tsv"
+        df_types_comp.to_csv(out_types, sep="\t", index=False)
 
-        # global “RR” using totals and same exposures for convenience (still reported)
-        # Here ‘exposure’ is the number of windows (for a quick summary).
-        # The GLM without offset already compares means directly; this RR is auxiliary.
-        n_win_sig  = int(is_sig.sum())
-        n_win_nsig = int((~is_sig).sum())
-        mean_sig  = (df_aug.loc[is_sig,  "TE_count"].mean() if n_win_sig  > 0 else np.nan)
-        mean_nsig = (df_aug.loc[~is_sig, "TE_count"].mean() if n_win_nsig > 0 else np.nan)
-        rr_glob_cnt = (mean_sig / mean_nsig) if (mean_sig is not np.nan and mean_nsig not in (np.nan, 0)) else np.nan
-
-        # per-TE-type (counts)
-        rows_cnt = []
-        for t in te_types:
-            y_t = df_aug[f"TE_{t}"].astype(int).to_numpy()
-            res_t = glm_compare_counts(y_t, grp, offset_log=None)
-            rows_cnt.append({
-                "TE_type": t,
-                "family": res_t["family"],
-                "RR": res_t["RR"], "RR_CI_lo": res_t["RR_CI_lo"], "RR_CI_hi": res_t["RR_CI_hi"],
-                "p": res_t["p"], "dispersion": res_t["dispersion"]
-            })
-        df_types_cnt = pd.DataFrame(rows_cnt)
-        df_types_cnt["q"] = multipletests(df_types_cnt["p"].fillna(1.0), method="fdr_bh")[1]
-        df_types_cnt = df_types_cnt.sort_values("q")
-
-        comp_masks_count[comp] = is_sig
-        per_comp_overall_count[comp] = {
-            "model_used": model_used_cnt,
-            "RR_overall": res_used_cnt["RR"], "RR_CI_lo": res_used_cnt["RR_CI_lo"],
-            "RR_CI_hi": res_used_cnt["RR_CI_hi"], "p_model": res_used_cnt["p"],
-            "dispersion_est": res_used_cnt["dispersion"],
-            "mean_TE_sig": mean_sig, "mean_TE_not": mean_nsig, "RR_means_sig_over_not": rr_glob_cnt,
-            "n_sig": n_win_sig, "n_not": n_win_nsig
-        }
-        per_comp_types_count[comp] = df_types_cnt
-        # write per-comp table (counts)
-        df_types_cnt.to_csv(OUTDIR / f"te_count_by_type_{comp}.tsv", sep="\t", index=False)
-        # forest (counts)
-        per_comp_forest_count[comp] = forest_per_comp(df_types_cnt, comp, OUTDIR, tag="count")
+        # per-comp forest plot
+        per_comp_forest_png[comp] = forest_per_comp(df_types_comp, comp, OUTDIR)
 
     # Write the augmented windows (once)
     out_aug = OUTDIR / "fst_windows_with_TEcounts.tsv"
     df_aug.to_csv(out_aug, sep="\t", index=False)
 
-    # Build combined summary tables for all comparisons
-    # Density track
-    rows_den = []
+    # Build a combined group summary table for all comparisons
+    rows = []
     for comp in comps:
-        is_sig = comp_masks_density[comp]
+        is_sig = comp_masks[comp]
         sub_sig  = df_aug[is_sig]
         sub_nsig = df_aug[~is_sig]
-        ov = per_comp_overall_density[comp]
-        rows_den.append({
-            "track": "density",
+        ov = per_comp_overall[comp]
+        rows.append({
             "comparison": comp,
             "n_windows": len(df_aug),
             "n_sig": ov["n_sig"], "n_not": ov["n_not"],
@@ -488,78 +419,57 @@ def main():
             "dispersion_est": ov["dispersion_est"],
             "global_RR": ov["global_RR"], "global_CI_lo": ov["global_CI_lo"], "global_CI_hi": ov["global_CI_hi"], "p_global": ov["p_global"]
         })
-    df_summary_den = pd.DataFrame(rows_den)
-    df_summary_den.to_csv(OUTDIR / "te_density_group_summary.tsv", sep="\t", index=False)
-
-    # Count track
-    rows_cnt = []
-    for comp in comps:
-        is_sig = comp_masks_count[comp]
-        sub_sig  = df_aug[is_sig]
-        sub_nsig = df_aug[~is_sig]
-        ov = per_comp_overall_count[comp]
-        rows_cnt.append({
-            "track": "count",
-            "comparison": comp,
-            "n_windows": len(df_aug),
-            "n_sig": ov["n_sig"], "n_not": ov["n_not"],
-            "mean_TE_sig": float(sub_sig["TE_count"].mean()) if len(sub_sig)>0 else np.nan,
-            "mean_TE_not": float(sub_nsig["TE_count"].mean()) if len(sub_nsig)>0 else np.nan,
-            "model_used": ov["model_used"],
-            "RR_overall": ov["RR_overall"], "RR_CI_lo": ov["RR_CI_lo"], "RR_CI_hi": ov["RR_CI_hi"], "p_model": ov["p_model"],
-            "dispersion_est": ov["dispersion_est"],
-            "RR_means_sig_over_not": ov["RR_means_sig_over_not"]
-        })
-    df_summary_cnt = pd.DataFrame(rows_cnt)
-    df_summary_cnt.to_csv(OUTDIR / "te_count_group_summary.tsv", sep="\t", index=False)
+    df_summary_all = pd.DataFrame(rows)
+    out_summ = OUTDIR / "te_density_group_summary.tsv"
+    df_summary_all.to_csv(out_summ, sep="\t", index=False)
 
     # Panel plots
-    fig_violin_panel_den = violin_box_panel(df_aug, comp_masks_density, OUTDIR, value_col="TE_density", tag="density")
-    fig_violin_panel_cnt = violin_box_panel(df_aug, comp_masks_count,   OUTDIR, value_col="TE_count",   tag="count")
-    fig_forest_panel_den = compact_forest_panel(per_comp_types_density, OUTDIR, tag="density", max_types=12)
-    fig_forest_panel_cnt = compact_forest_panel(per_comp_types_count,   OUTDIR, tag="count",   max_types=12)
+    fig_violin_panel = violin_box_panel(df_aug, comp_masks, OUTDIR)
+    fig_forest_panel = compact_forest_panel(per_comp_types, OUTDIR, max_types=12)
 
     # PPTX
     prs = Presentation()
     # Title
     slide = prs.slides.add_slide(prs.slide_layouts[0])
-    slide.shapes.title.text = "TE vs FST windows — density & count tracks (per comparison)"
+    slide.shapes.title.text = "TE density vs FST-enriched windows (per comparison)"
     slide.placeholders[1].text = (
-        f"Significance: q_poi < {Q_CUTOFF} for each of: 3vs4, 3vs5, 4vs5\n"
-        "Density track: GLM with log(offset = window length)\n"
-        "Count track:   GLM with no offset (raw counts per window)\n"
-        "Auto-switch to NegBin if overdispersed; FDR per comparison & per TE type"
+        f"Grouping by Poisson q< {Q_CUTOFF} for each of: 3vs4, 3vs5, 4vs5\n"
+        "Counts modeled by GLM with log(offset=window length)\n"
+        "Auto-switch to Negative Binomial under overdispersion\n"
+        "Per-TE-type effects FDR-controlled within each comparison"
     )
 
-    # Per-comparison bullets (both tracks)
+    # One slide per comparison (bullets)
     for comp in comps:
-        ovd = per_comp_overall_density[comp]
-        ovc = per_comp_overall_count[comp]
+        ov = per_comp_overall[comp]
         bullets = [
-            f"{comp}: significant / not = {ovd['n_sig']:,} / {ovd['n_not']:,}",
-            f"[Density] RR(sig/not) = {ovd['RR_overall']:.3f} "
-            f"[{ovd['RR_CI_lo']:.3f}, {ovd['RR_CI_hi']:.3f}], p={ovd['p_model']:.2e}; model={ovd['model_used']}, disp≈{ovd['dispersion_est']:.2f}",
-            f"[Count]   RR(exp coef) = {ovc['RR_overall']:.3f} "
-            f"[{ovc['RR_CI_lo']:.3f}, {ovc['RR_CI_hi']:.3f}], p={ovc['p_model']:.2e}; model={ovc['model_used']}, disp≈{ovc['dispersion_est']:.2f}",
-            f"[Count]   Means: sig={ovc['mean_TE_sig']:.3f}, not={ovc['mean_TE_not']:.3f}  (ratio≈{ovc['RR_means_sig_over_not']:.3f})",
+            f"{comp}: windows sig/not = {ov['n_sig']:,} / {ov['n_not']:,}",
+            f"Overall RR (sig/not) = {ov['RR_overall']:.3f} "
+            f"[{ov['RR_CI_lo']:.3f}, {ov['RR_CI_hi']:.3f}], p={ov['p_model']:.2e}",
+            f"Model used: {ov['model_used']} (Poisson dispersion≈{ov['dispersion_est']:.2f})",
+            f"Global RR = {ov['global_RR']:.3f} "
+            f"[{ov['global_CI_lo']:.3f}, {ov['global_CI_hi']:.3f}], p={ov['p_global']:.2e}",
+            ("Top TE types by FDR (q<0.05): " +
+             ", ".join(per_comp_types[comp].loc[per_comp_types[comp]["q"]<0.05, "TE_type"]
+                       .head(10).astype(str)))
+                if (per_comp_types[comp]["q"]<0.05).any()
+                else "No TE types pass FDR<0.05"
         ]
-        add_slide(prs, f"Summary — {comp}", bullets=bullets, image=str(forest_per_comp(per_comp_types_density[comp], comp, OUTDIR, tag="density")))
+        add_slide(prs, f"Summary — {comp}", bullets=bullets, image=str(per_comp_forest_png[comp]))
 
-    # Panel slides
-    add_slide(prs, "TE density violin+box — PANEL", bullets=None, image=str(fig_violin_panel_den))
-    add_slide(prs, "TE count violin+box — PANEL",   bullets=None, image=str(fig_violin_panel_cnt))
-    add_slide(prs, "Per-TE-type RR (density) — PANEL", bullets=None, image=str(fig_forest_panel_den))
-    add_slide(prs, "Per-TE-type RR (count)   — PANEL", bullets=None, image=str(fig_forest_panel_cnt))
+    # Panel figures slides
+    add_slide(prs, "TE density violin+box — PANEL", bullets=None, image=str(fig_violin_panel))
+    add_slide(prs, "Per-TE-type RR (top by FDR) — PANEL", bullets=None, image=str(fig_forest_panel))
 
     pptx_path = OUTDIR / "TE_vs_FST_report.pptx"
     prs.save(str(pptx_path))
 
     print(f"\nDone. Outputs in: {OUTDIR.resolve()}")
     print(f"- Augmented windows: {out_aug.name}")
-    print(f"- Density summaries: te_density_group_summary.tsv; per-type: te_density_by_type_<comp>.tsv")
-    print(f"- Count summaries:   te_count_group_summary.tsv;   per-type: te_count_by_type_<comp>.tsv")
-    print(f"- Panel figures:     {Path(fig_violin_panel_den).name}, {Path(fig_violin_panel_cnt).name},")
-    print(f"                     {Path(fig_forest_panel_den).name}, {Path(fig_forest_panel_cnt).name}")
+    print(f"- Group summary:     {out_summ.name}")
+    for comp in comps:
+        print(f"- Per-type ({comp}): te_density_by_type_{comp}.tsv, figure: {per_comp_forest_png[comp].name}")
+    print(f"- Panel figures:     {Path(fig_violin_panel).name}, {Path(fig_forest_panel).name}")
     print(f"- Report:            {pptx_path.name}")
 
 if __name__ == "__main__":
