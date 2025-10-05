@@ -453,5 +453,152 @@ def manhattan_q_panels_GWAS_only(fst_df_with_coords, outdir, gwas_df):
         gw_traits  = {s: sub.set_index("Pos")["traits"].astype(str) for s, sub in gwas_df.groupby("Scaffold")}
 
     fig, axes = plt.subplots(3, 1, figsize=(14, PANEL_ROW_HEIGHT*3), sharex=True)
-    for i,
+    for i, comp in enumerate(comps):
+        ax = axes[i]
+        qcol = qmap[comp]
+        ycol = f"neglog10_{comp}"
+        dfc = base.copy()
+        dfc["Y"] = dfc[ycol]
+        alpha = pd.Series(np.where(dfc[qcol] < Q_CUTOFF, ALPHA_SIG, ALPHA_NONSIG), index=dfc.index)
+        _scatter_by_scaffold(ax, dfc, y_col="Y", alpha=alpha)
 
+        # overlay/annotate GWAS hit windows (significant only)
+        if gw_by_scaf:
+            hits = []
+            for _, r in dfc[dfc[qcol] < Q_CUTOFF].iterrows():
+                sc = r["CHROM"]
+                if sc not in gw_by_scaf:
+                    continue
+                pos = gw_by_scaf[sc]
+                ok  = (pos >= int(r["WIN_START"])) & (pos <= int(r["WIN_END"]))
+                if np.any(ok):
+                    first_pos = int(pos[ok][0])
+                    trait     = gw_traits[sc].get(first_pos, "")
+                    rr = r.copy()
+                    rr["ann_text"] = f"{first_pos}:{trait}"
+                    hits.append(rr)
+            if hits:
+                H = pd.DataFrame(hits)
+                ax.scatter(H["X_Gb"], H["Y"], s=POINT_SIZE*1.4, c=COLOR_TOP_LABELS, zorder=5)
+                for _, rr in H.iterrows():
+                    ax.text(rr["X_Gb"], rr["Y"], rr["ann_text"], fontsize=BASE_FONTSIZE-1,
+                            color=COLOR_TOP_LABELS, rotation=45, ha="left", va="bottom")
+
+        ax.set_ylabel(r"$-\log_{10}(q)$", fontsize=BASE_FONTSIZE)
+        ax.set_title(f"{comp} — GWAS-only overlay of significant windows", fontsize=BASE_FONTSIZE+1)
+        _axes_common_style(ax)
+
+    axes[-1].set_xlabel("Genome position (Gb, scaffolds concatenated)", fontsize=BASE_FONTSIZE)
+    fig.tight_layout()
+    out = outdir / "manhattan_q_panels_GWAS_ONLY.png"
+    fig.savefig(out, dpi=220); plt.close(fig)
+    return out
+
+# ---------- (C) Gene COUNT PANELS (Y = raw counts) ----------
+def manhattan_counts_panel_gene(df_aug, outdir):
+    comps = ["3vs4","3vs5","4vs5"]
+    qmap = {c: f"q_poi_{c}" for c in comps}
+
+    base = df_aug[["CHROM","WIN_START","WIN_END","WIN_MID","GENE_count",
+                   qmap["3vs4"], qmap["3vs5"], qmap["4vs5"]]].copy()
+    base = base.rename(columns={"GENE_count":"Y"})
+    base, _ = build_genome_coords(base)
+    base["Y"] = pd.to_numeric(base["Y"], errors="coerce").fillna(0)
+
+    fig, axes = plt.subplots(3, 1, figsize=(14, PANEL_ROW_HEIGHT*3), sharex=True)
+    for i, comp in enumerate(comps):
+        ax = axes[i]
+        qcol = qmap[comp]
+        alpha = pd.Series(_alpha_from_q(base[qcol]), index=base.index)
+        _scatter_by_scaffold(ax, base, y_col="Y", alpha=alpha)
+        ax.set_ylabel("GENE_count per window", fontsize=BASE_FONTSIZE)
+        ax.set_title(f"{comp} — counts per window", fontsize=BASE_FONTSIZE+1)
+        _axes_common_style(ax)
+    axes[-1].set_xlabel("Genome position (Gb, scaffolds concatenated)", fontsize=BASE_FONTSIZE)
+    fig.tight_layout()
+    out = outdir / "manhattan_counts_GENE_count.png"
+    fig.savefig(out, dpi=220); plt.close(fig)
+    return out
+
+# =========================
+# MAIN
+# =========================
+def main():
+    # 1) Load inputs
+    fst   = read_fst_windows(FST_CSV)
+    genes = read_gene_excel(GENE_XLSX)
+    gwas  = read_gwas(GWAS_XLSX)
+
+    # 2) Count genes per window
+    gene_counts = count_genes_per_window(fst, genes)
+
+    # 3) Build augmented FST windows table
+    df_aug = fst.merge(gene_counts, on=["CHROM","WIN_START","WIN_END","WIN_LEN","WIN_MID"], how="left")
+    num_cols = df_aug.select_dtypes(include=[np.number]).columns
+    df_aug[num_cols] = df_aug[num_cols].fillna(0)
+
+    # 4) Add GWAS overlap columns to TSV
+    df_aug = add_gwas_overlap_columns(df_aug, gwas)
+
+    # 5) Presence tests (significant vs not, presence = ≥1 gene)
+    comps = ["3vs4","3vs5","4vs5"]
+    comp_masks = {c: (df_aug[f"q_poi_{c}"] < Q_CUTOFF) for c in comps}
+    rows = []
+    for comp, is_sig in comp_masks.items():
+        pres = presence_tests(df_aug, is_sig, count_col="GENE_count")
+        rows.append({"comparison":comp,
+                     "n_windows_sig":int(is_sig.sum()),
+                     "n_windows_not":int((~is_sig).sum()),
+                     "total_GENES_sig":int(df_aug.loc[is_sig,"GENE_count"].sum()),
+                     "total_GENES_not":int(df_aug.loc[~is_sig,"GENE_count"].sum()),
+                     **pres})
+    pd.DataFrame(rows).to_csv(OUTDIR / "gene_presence_fisher_chisq.tsv", sep="\t", index=False)
+
+    # 6) Manhattan families
+    paths = []
+
+    # (A) −log10(q) panels for the gene feature (with composite top-K labels)
+    a, b = manhattan_q_panels_gene(df_aug, OUTDIR, gwas_df=gwas)
+    paths += [p for p in (a,b) if p is not None]
+
+    # (B) GWAS-only −log10(q) panels (no genes)
+    fst_coords, _ = build_genome_coords(df_aug[["CHROM","WIN_START","WIN_END","WIN_MID",
+                                                "q_poi_3vs4","q_poi_3vs5","q_poi_4vs5"]])
+    paths.append(manhattan_q_panels_GWAS_only(fst_coords, OUTDIR, gwas_df=gwas))
+
+    # (C) Gene COUNT panels
+    paths.append(manhattan_counts_panel_gene(df_aug, OUTDIR))
+
+    # 7) Save augmented TSV (with GWAS columns)
+    out_aug = OUTDIR / "fst_windows_with_GENES.tsv"
+    df_aug.to_csv(out_aug, sep="\t", index=False)
+
+    # 8) Tiny PPTX listing example outputs
+    prs = Presentation()
+    s = prs.slides.add_slide(prs.slide_layouts[0])
+    s.shapes.title.text = "GENE vs FST — Manhattan suite (Gb axis, scaffold-ordered)"
+    s.placeholders[1].text = (
+        f"Q cutoff = {Q_CUTOFF}  |  Alpha: {ALPHA_SIG} (sig) / {ALPHA_NONSIG} (non-sig)\n"
+        "A) −log10(q) for GENE_count with composite top-K labels (small q & high count)\n"
+        "B) GWAS-only −log10(q) panels (no genes)\n"
+        "C) GENE COUNT panels (raw counts per window)\n"
+        f"Output dir: {OUTDIR.resolve()}"
+    )
+    s2 = prs.slides.add_slide(prs.slide_layouts[5])
+    s2.shapes.title.text = "Example outputs"
+    tb = s2.shapes.add_textbox(Inches(0.5), Inches(1.4), Inches(9), Inches(3.6))
+    tf = tb.text_frame; tf.clear()
+    for p in paths[:10]:
+        para = tf.paragraphs[0] if tf.text == "" else tf.add_paragraph()
+        para.text = Path(p).name
+    prs.save(str(OUTDIR / "GENE_vs_FST_manhattan_suite.pptx"))
+
+    print("\nDone.")
+    print(f"- Augmented TSV (GWAS cols): {out_aug.name}")
+    print(f"- Presence tests TSV: gene_presence_fisher_chisq.tsv")
+    print(f"- Figures in: {OUTDIR.resolve()}")
+    if paths:
+        print(f"- Examples: {', '.join([Path(p).name for p in paths[:5]])}")
+
+if __name__ == "__main__":
+    main()
