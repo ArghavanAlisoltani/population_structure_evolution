@@ -7,7 +7,7 @@
 #SBATCH --mail-user=arghavana85@gmail.com
 #SBATCH --mail-type=FAIL
 #SBATCH --output="/scratch/arghavan/LP/subsampling/out_prep.txt"
-#SBATCH --error="/scratch/arghavan/LP/singer/scaffold_1a_single/err.txt"
+#SBATCH --error="/scratch/arghavan/LP/subsampling//err.txt"
 #SBATCH --job-name="prep"
 
 # ------------------ USER INPUTS ------------------
