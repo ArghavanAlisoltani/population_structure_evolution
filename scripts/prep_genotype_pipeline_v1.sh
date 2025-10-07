@@ -2,8 +2,8 @@
 #SBATCH -p batch
 #SBATCH -t 48:00:00
 #SBATCH -N 1
-#SBATCH --mem-per-cpu=12G
-#SBATCH --ntasks-per-node=1
+#SBATCH --mem-per-cpu=2G
+#SBATCH --ntasks-per-node=8
 #SBATCH --mail-user=arghavana85@gmail.com
 #SBATCH --mail-type=FAIL
 #SBATCH --output="/scratch/arghavan/LP/singer/scaffold_1a_single/out.txt"
