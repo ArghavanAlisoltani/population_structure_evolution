@@ -6,7 +6,7 @@
 #SBATCH --ntasks-per-node=8
 #SBATCH --mail-user=arghavana85@gmail.com
 #SBATCH --mail-type=FAIL
-#SBATCH --output="/scratch/arghavan/LP/singer/scaffold_1a_single/out.txt"
+#SBATCH --output="/scratch/arghavan/LP/subsampling/out_prep.txt"
 #SBATCH --error="/scratch/arghavan/LP/singer/scaffold_1a_single/err.txt"
 #SBATCH --job-name="prep"
 
