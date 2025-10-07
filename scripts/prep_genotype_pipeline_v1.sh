@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
-#SBATCH -p bigmem
+#SBATCH -p batch
 #SBATCH -t 48:00:00
 #SBATCH -N 1
-#SBATCH --mem-per-cpu=256G
+#SBATCH --mem-per-cpu=12G
 #SBATCH --ntasks-per-node=1
 #SBATCH --mail-user=arghavana85@gmail.com
 #SBATCH --mail-type=FAIL
