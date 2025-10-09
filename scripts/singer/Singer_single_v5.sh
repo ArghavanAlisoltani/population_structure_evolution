@@ -22,7 +22,7 @@ export LC_ALL=C
 # 1) Inputs & run parameters (EDIT HERE)
 ############################################
 # Accepts .vcf.gz or .vcf; we’ll always create a plain .vcf for SINGER.
-SRC_VCF="/scratch/arghavan/LP/subsampling/s100_All_1a1b_renamed.filtered.vcf.gz"
+SRC_VCF="/scratch/arghavan/LP/subsampling/"
 
 CHR="scaffold_1a"
 WIN=1000000          # window size (bp); bump to 2e6–5e6 if too sparse
