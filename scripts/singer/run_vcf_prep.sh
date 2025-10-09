@@ -14,7 +14,7 @@
 module load bcftools/1.8
 
 # ------------ EDIT THESE ------------
-SRC_VCF="/scratch/arghavan/LP/subsampling/s100_All_1a1b_renamed.filtered.vcf.gz"  # .vcf or .vcf.gz
+SRC_VCF="/scratch/arghavan/LP/subsampling/split_poly_s100_scaffolds.sorted.vcf.gz"  # .vcf or .vcf.gz
 OUTDIR="/scratch/arghavan/LP/singer/prep"
 
 # ------------------------------------
