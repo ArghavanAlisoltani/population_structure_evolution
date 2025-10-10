@@ -139,3 +139,7 @@ fi
 
 echo "[✓] All done. Per-pop filtered VCFs: $OUTDIR/vcf_by_pop/*.filtered.vcf.gz"
 echo "[✓] Per-site FST: $OUTDIR/fst_per_site/*.weir.fst ;  Windowed: $OUTDIR/fst_windowed/*.windowed.weir.fst"
+
+# compare to the V1 this scripts applies filtering for SNPs keep only biallelic SNPs
+# per-site call rate ≥ 0.90 (i.e., --max-missing 0.9)
+# MAF ≥ 0.01 within that population (which also removes monomorphic sites) 
