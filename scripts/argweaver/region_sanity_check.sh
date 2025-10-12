@@ -4,3 +4,6 @@ bcftools view "/scratch/arghavan/LP/subsampling/split_poly_s100_scaffolds.sorted
 
 bcftools view "/scratch/arghavan/LP/subsampling/split_poly_s100_scaffolds.sorted.vcf.gz" "scaffold_2b:150000000-180000000" | wc -l
 
+bcftools view "/scratch/arghavan/LP/subsampling/split_poly_s100_scaffolds.sorted.vcf.gz" 
+
+scaffold_2:340000001-450000000
