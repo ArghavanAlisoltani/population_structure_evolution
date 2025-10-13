@@ -4,7 +4,14 @@
 """
 TE class enrichment tied to significant FST windows
 (uses your exact v9 headers; adds Gypsy↔Copia, Helitron↔Copia, Helitron↔Gypsy)
-
+Run
+python te_class_enrichment_panel_v1.py \
+  --in fst_windows_with_TEcounts.tsv \
+  --outdir te_class_panel_out \
+  --qcut 0.05 \
+  --make_plots \
+  --make_slides
+  
 Inputs (TSV; tab-separated) must contain (from your header):
   CHROM, WIN_START, WIN_END, WIN_MID, WIN_LEN,
   q_poi_3vs4, q_poi_3vs5, q_poi_4vs5,
