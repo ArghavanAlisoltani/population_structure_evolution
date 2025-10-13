@@ -4,6 +4,14 @@
 """
 Per-TE per-window enrichment (Poisson & NegBin) + correlations vs FST q-values.
 
+Run guide
+
+python te_enrichment_and_correlations.py \
+  --in fst_windows_with_TEcounts.tsv \
+  --outdir te_teclass_enrichment_out \
+  --q_fst_colset q_poi_3vs4 q_poi_3vs5 q_poi_4vs5
+
+
 Inputs (TSV; tab-separated) with exact columns (subset shown):
   CHROM  WIN_START  WIN_END  WIN_MID  WIN_LEN
   q_poi_3vs4  q_poi_3vs5  q_poi_4vs5
