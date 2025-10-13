@@ -6,5 +6,6 @@ bcftools view "/scratch/arghavan/LP/subsampling/split_poly_s100_scaffolds.sorted
 
 bcftools view "/scratch/arghavan/LP/subsampling/split_poly_s100_scaffolds.sorted.vcf.gz" 
 
-bcftools view "/scratch/arghavan/LP/subsampling/poly_s100_All_1a1b_renamed.vcf.gz" "scaffold_11:550000000-600000000" | wc -l
+# why 1 tmrca per 6 million 
+bcftools view "/scratch/arghavan/LP/subsampling/poly_s100_All_1a1b_renamed.vcf.gz" "scaffold_5:600000000-606310940" | wc -l
 
