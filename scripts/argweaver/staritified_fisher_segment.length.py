@@ -51,6 +51,7 @@ from statsmodels.stats.multitest import multipletests
 # ------------------------
 # USER SETTINGS
 # ------------------------
+# pwd all_tmrca/all_tmrca
 IN_TMRCA_TSV = "annotated_tmrca_4_GPT_13columns.tsv"  # segments (columns listed above)
 ANNO_XLSX    = None     # set to None to skip annotation
 ANNO_SHEET   = None                                    # None => first sheet
