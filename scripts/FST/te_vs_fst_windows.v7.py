@@ -45,7 +45,7 @@ OUTDIR.mkdir(parents=True, exist_ok=True)
 
 # ------- Figure styling knobs -------
 BASE_FONTSIZE    = 11         # axis/label font size
-PANEL_ROW_HEIGHT = 3.6        # inches per row (3-row panels)
+PANEL_ROW_HEIGHT = 5        # inches per row (3-row panels)
 POINT_SIZE       = 10         # scatter point size
 ALPHA_SIG        = 1.0        # alpha for q < cutoff (bold)
 ALPHA_NONSIG     = 0.18       # alpha for q >= cutoff (faded)
