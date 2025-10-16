@@ -4,4 +4,4 @@ awk 'BEGIN{OFS="\t"} !/^#/{
   name="NA";
   if (match($9, /(^|;)Name=([^;]+)/, a)) name=a[2];
   print $1,$4,$5,$3,$7,name
-}' your.edta.gff3 > gff_instances_family.tsv
+}' TEanno.cds.gff3 > gff_instances_family.tsv
