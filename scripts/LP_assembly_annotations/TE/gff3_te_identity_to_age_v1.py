@@ -19,7 +19,7 @@ Usage
 -----
 python gff3_te_identity_to_age.py \
   --gff ./Lpine.gff3 \
-  --mu 1.3e-8 \
+  --mu 2.2e-9 \
   --generation-years 1 \
   --include all \
   --out te_age_from_identity.tsv
