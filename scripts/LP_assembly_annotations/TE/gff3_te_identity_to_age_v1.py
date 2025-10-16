@@ -153,11 +153,4 @@ def parse_args(argv=None):
 if __name__ == '__main__':
     run(parse_args())
 
-# Run
-# python gff3_te_identity_to_age.py \
-#  --gff EDTA.gff3 \
-#  --mu 1.3e-8 \
-#  --generation-years 1 \
-#  --include ltr \
-#  --out te_age_from_identity.tsv
 
