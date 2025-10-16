@@ -1,137 +1,96 @@
-# Collapse overlapping transcripts: keep the longest (per contig, with optional keys)
-# Requires: data.table (fast) + dplyr (optional tidy niceties)
+# Collapse overlapping intervals per contig (optionally also by orientation / NR.ID)
+# Keep the longest; tie-breakers: higher coverage, then earlier start.
 
 suppressPackageStartupMessages({
   library(data.table)
-  library(dplyr)
 })
 
 # ---- CONFIG ---------------------------------------------------------------
+setwd("~/Desktop/OSU_projects/conifers/LP/lodgepole_pine_assembly")
 
-in_file  <- "input_annotations.tsv"   # TSV/CSV (auto delim if fread)
+in_file <- "Aria_curated_annotation.tsv"   # for TSV/CSV (auto-delimiter detection)
 out_file <- "annotations_dedup.tsv"
 
-# Include additional grouping constraints for "overlap" definition:
-# If TRUE, overlaps are collapsed only when these also match.
-require_same_orientation <- FALSE   # set TRUE if you want + vs - kept separate
-require_same_nr_id       <- FALSE   # set TRUE to merge only when NR.ID is identical
 
-# Tie-breakers when lengths are identical:
-prefer_higher_coverage <- TRUE
 
-# ---- READ -----------------------------------------------------------------
+# Collapse only when these ALSO match (flip to TRUE if desired)
+require_same_orientation <- FALSE
+require_same_nr_id       <- FALSE
 
-dt <- data.table::fread(in_file)
-# Ensure required columns
-req <- c("contig","start_pos","end_pos","transcript_id","length","coverage")
-missing <- setdiff(req, names(dt))
-if (length(missing)) stop("Missing required columns: ", paste(missing, collapse=", "))
+# ---- READ ----
+dt <- fread(in_file)
 
-# Coerce numeric + fix reversed coords if any
-dt[, start_pos := as.numeric(start_pos)]
-dt[, end_pos   := as.numeric(end_pos)]
-dt[, length    := as.numeric(length)]
-if ("coverage" %in% names(dt)) dt[, coverage := as.numeric(coverage)] else dt[, coverage := NA_real_]
+# sanity
+req <- c("contig","start_pos","end_pos","transcript_id","length")
+miss <- setdiff(req, names(dt))
+if (length(miss)) stop("Missing required columns: ", paste(miss, collapse=", "))
 
-# Normalize: start <= end
-swap_idx <- dt$start_pos > dt$end_pos
-if (any(swap_idx)) {
-  tmp <- dt$start_pos[swap_idx]
-  dt$start_pos[swap_idx] <- dt$end_pos[swap_idx]
-  dt$end_pos[swap_idx]   <- tmp
-}
+# numeric + normalize coordinates
+numify <- function(x) suppressWarnings(as.numeric(x))
+dt[, `:=`(
+  start_pos = numify(start_pos),
+  end_pos   = numify(end_pos),
+  length    = numify(length)
+)]
+if (!"coverage" %in% names(dt)) dt[, coverage := NA_real_] else dt[, coverage := numify(coverage)]
 
-# ---- DEFINE CLUSTERING KEYS ----------------------------------------------
+swap <- dt$start_pos > dt$end_pos
+if (any(swap)) dt[swap, `:=`(start_pos = end_pos, end_pos = start_pos)]
 
-# Base key: contig
+# ---- GROUPING KEYS ----
 cluster_keys <- c("contig")
-if (require_same_orientation && "orientation" %in% names(dt)) {
-  cluster_keys <- c(cluster_keys, "orientation")
-}
-if (require_same_nr_id && "NR.ID" %in% names(dt)) {
-  cluster_keys <- c(cluster_keys, "NR.ID")
-}
+if (require_same_orientation && "orientation" %in% names(dt)) cluster_keys <- c(cluster_keys, "orientation")
+if (require_same_nr_id && "NR.ID" %in% names(dt))            cluster_keys <- c(cluster_keys, "NR.ID")
 
-# ---- BUILD OVERLAP CLUSTERS (linear sweep per key block) ------------------
+# ---- SORT (use setorderv, not tidyverse !!!) ----
+ord_cols <- c(cluster_keys, "start_pos", "end_pos")
+# make sure they all exist (defensive)
+stopifnot(all(ord_cols %in% names(dt)))
+setorderv(dt, ord_cols)   # ascending by default
 
-setkeyv(dt, c(cluster_keys, "start_pos", "end_pos"))
-
-# Function to assign cluster IDs to overlapping intervals within a block
-assign_overlap_clusters <- function(block) {
-  # block is a data.table sorted by start_pos, end_pos
-  n <- nrow(block)
-  if (n == 0L) return(integer(0))
-  cluster_id <- integer(n)
-  current_id <- 1L
-  current_max_end <- block$end_pos[1]
-  cluster_id[1] <- current_id
-
-  for (i in 2:n) {
-    s <- block$start_pos[i]
-    e <- block$end_pos[i]
-    # If starts before or at current_max_end => overlaps current cluster
-    if (!is.na(s) && !is.na(current_max_end) && s <= current_max_end) {
-      cluster_id[i] <- current_id
-      # extend the cluster span if needed
-      if (!is.na(e) && e > current_max_end) current_max_end <- e
-    } else {
-      # starts after current cluster ends => new cluster
-      current_id <- current_id + 1L
-      cluster_id[i] <- current_id
-      current_max_end <- e
+# ---- ASSIGN OVERLAP CLUSTERS (length .N guaranteed) ----
+dt[, .cluster_id := {
+  if (.N == 0L) integer(0) else {
+    out <- integer(.N)
+    cid <- 1L
+    cur_end <- end_pos[1L]
+    out[1L] <- cid
+    if (.N > 1L) {
+      for (i in 2L:.N) {
+        if (!is.na(start_pos[i]) && !is.na(cur_end) && start_pos[i] <= cur_end) {
+          if (!is.na(end_pos[i]) && end_pos[i] > cur_end) cur_end <- end_pos[i]
+        } else {
+          cid <- cid + 1L
+          cur_end <- end_pos[i]
+        }
+        out[i] <- cid
+      }
     }
+    out
   }
-  cluster_id
-}
+}, by = cluster_keys]
 
-# Apply per group of cluster_keys
-dt[, .cluster_id := assign_overlap_clusters(.SD), by = cluster_keys]
+# ---- PICK WINNER PER CLUSTER ----
+# Longest, then higher coverage, then earlier start
+dt[, .sel_rank := frankv(list(-length, -coverage, start_pos), ties.method = "min"),
+   by = c(cluster_keys, ".cluster_id")]
 
-# ---- SELECT WINNER PER CLUSTER -------------------------------------------
+winners <- dt[.sel_rank == 1]
 
-# Order by selection criteria:
-# 1) longest length (desc)
-# 2) higher coverage (desc) if available/desired
-# 3) earlier start_pos (asc)
-# 4) keep first (stable)
-ord_expr <- list(-length, start_pos)  # base
-if (prefer_higher_coverage && "coverage" %in% names(dt)) {
-  ord_expr <- append(list(-coverage), ord_expr, after = 1)
-}
-
-# Rank rows within each cluster and take the top
-dt[, .rank := frankv(list(!!!ord_expr), ties.method = "min"), by = c(cluster_keys, ".cluster_id")]
-winners <- dt[.rank == 1]
-
-# ---- OPTIONAL: keep a summary of what got merged (e.g., merged transcript_ids) ----
-# Build a summary per cluster to attach back if you want transparency
-cluster_summary <- dt[, .(
+# Optional transparency about what got merged
+merged_summary <- dt[, .(
   merged_transcripts = paste(unique(transcript_id), collapse = ";"),
   n_collapsed = .N
 ), by = c(cluster_keys, ".cluster_id")]
 
-winners <- merge(
-  winners,
-  cluster_summary,
-  by = c(cluster_keys, ".cluster_id"),
-  all.x = TRUE
-)
+winners <- merge(winners, merged_summary,
+                 by = c(cluster_keys, ".cluster_id"), all.x = TRUE)
 
-# ---- CLEAN & WRITE --------------------------------------------------------
-
-# You can drop helper columns if you like:
-winners[, c(".cluster_id", ".rank") := NULL]
-
-# Keep original column order where possible and append summaries at the end
-orig_cols <- names(dt)
-orig_cols <- setdiff(orig_cols, c(".cluster_id", ".rank"))  # remove helpers
-keep_order <- c(orig_cols, setdiff(names(winners), orig_cols))
-
-setcolorder(winners, keep_order)
-
+# Cleanup & write
+winners[, c(".cluster_id", ".sel_rank") := NULL]
+orig <- names(dt); orig <- setdiff(orig, c(".cluster_id", ".sel_rank"))
+setcolorder(winners, c(orig, setdiff(names(winners), orig)))
 fwrite(winners, out_file, sep = "\t", na = "")
 
-cat(sprintf(
-  "Collapsed %d -> %d rows (%d removed). Grouped by: %s. Overlap criterion: intervals on same group.\n",
-  nrow(dt), nrow(winners), nrow(dt) - nrow(winners), paste(cluster_keys, collapse = ", ")
-))
+cat(sprintf("Collapsed %d -> %d rows. Grouped by: %s\n",
+            nrow(dt), nrow(winners), paste(cluster_keys, collapse = ", ")))
