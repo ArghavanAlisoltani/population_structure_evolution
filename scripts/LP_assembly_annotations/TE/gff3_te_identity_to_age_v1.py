@@ -9,6 +9,8 @@ Given a GFF3 with features annotated by EDTA and an `identity=<float>` attribute
   age (generations) = D / (2 * mu)
   age (years)       = age_gens * generation_time_years
 
+The rate of nucleotide substitution (r) used for gymnosperm species was 2.2 × 10–9
+
 This is a *rough proxy*. For proper ages of LTR retrotransposons, use paired LTR
 5'/3' divergence when available. Here we only have top-level features with
 `identity`, so we provide this approximation.
