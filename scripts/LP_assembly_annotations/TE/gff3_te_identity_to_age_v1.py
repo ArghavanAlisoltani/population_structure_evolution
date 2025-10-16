@@ -18,7 +18,7 @@ This is a *rough proxy*. For proper ages of LTR retrotransposons, use paired LTR
 Usage
 -----
 python gff3_te_identity_to_age.py \
-  --gff EDTA.gff3 \
+  --gff ./Lpine.gff3 \
   --mu 1.3e-8 \
   --generation-years 1 \
   --include all \
