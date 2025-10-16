@@ -1,127 +1,137 @@
-# De-duplicate by (contig, start_pos, end_pos, orientation, gene_id)
-# collapsing rows that only differ by tissue_source.
+# Collapse overlapping transcripts: keep the longest (per contig, with optional keys)
+# Requires: data.table (fast) + dplyr (optional tidy niceties)
 
 suppressPackageStartupMessages({
+  library(data.table)
   library(dplyr)
-  library(readr)
-  library(stringr)
-  library(readxl)
-  library(tidyr)
-  library(purrr)
 })
 
 # ---- CONFIG ---------------------------------------------------------------
 
-# Set one of these and leave the other NULL
-in_file_tsv <- "input_annotations.tsv"   # for TSV/CSV (auto-delimiter detection)
-in_file_xlsx <- NULL                     # e.g., "Example_Gene_V1_header_gpt_input.xlsx"
-
+in_file  <- "input_annotations.tsv"   # TSV/CSV (auto delim if fread)
 out_file <- "annotations_dedup.tsv"
 
-# If TRUE, try to normalize transcript IDs down to a gene-level ID
-# by removing common isoform suffixes (e.g., .t1, -RA, _i2).
-strip_isoform_suffix <- TRUE
+# Include additional grouping constraints for "overlap" definition:
+# If TRUE, overlaps are collapsed only when these also match.
+require_same_orientation <- FALSE   # set TRUE if you want + vs - kept separate
+require_same_nr_id       <- FALSE   # set TRUE to merge only when NR.ID is identical
 
-# Prefer rows with higher coverage; then longer length; then first occurrence
-prefer_by <- c("coverage", "length")
+# Tie-breakers when lengths are identical:
+prefer_higher_coverage <- TRUE
 
-# ---- READ ----------------------------------------------------------------
+# ---- READ -----------------------------------------------------------------
 
-read_table_flex <- function(in_file_tsv, in_file_xlsx) {
-  if (!is.null(in_file_xlsx)) {
-    # First (or only) sheet by default
-    df <- readxl::read_excel(in_file_xlsx)
-    df <- as.data.frame(df)
-  } else if (!is.null(in_file_tsv)) {
-    # Try to guess delimiter (tab vs comma)
-    # readr::read_delim will auto-detect when delim = NULL (readr >= 2.0)
-    df <- readr::read_delim(in_file_tsv, delim = NULL, guess_max = 100000, show_col_types = FALSE)
-  } else {
-    stop("Provide either in_file_tsv or in_file_xlsx.")
-  }
-  df
+dt <- data.table::fread(in_file)
+# Ensure required columns
+req <- c("contig","start_pos","end_pos","transcript_id","length","coverage")
+missing <- setdiff(req, names(dt))
+if (length(missing)) stop("Missing required columns: ", paste(missing, collapse=", "))
+
+# Coerce numeric + fix reversed coords if any
+dt[, start_pos := as.numeric(start_pos)]
+dt[, end_pos   := as.numeric(end_pos)]
+dt[, length    := as.numeric(length)]
+if ("coverage" %in% names(dt)) dt[, coverage := as.numeric(coverage)] else dt[, coverage := NA_real_]
+
+# Normalize: start <= end
+swap_idx <- dt$start_pos > dt$end_pos
+if (any(swap_idx)) {
+  tmp <- dt$start_pos[swap_idx]
+  dt$start_pos[swap_idx] <- dt$end_pos[swap_idx]
+  dt$end_pos[swap_idx]   <- tmp
 }
 
-df <- read_table_flex(in_file_tsv, in_file_xlsx)
+# ---- DEFINE CLUSTERING KEYS ----------------------------------------------
 
-# ---- VALIDATE REQUIRED COLUMNS -------------------------------------------
+# Base key: contig
+cluster_keys <- c("contig")
+if (require_same_orientation && "orientation" %in% names(dt)) {
+  cluster_keys <- c(cluster_keys, "orientation")
+}
+if (require_same_nr_id && "NR.ID" %in% names(dt)) {
+  cluster_keys <- c(cluster_keys, "NR.ID")
+}
 
-required_cols <- c(
-  "contig","tissue_source","start_pos","end_pos","orientation","transcript_id",
-  "length","coverage","Unique_ID"
+# ---- BUILD OVERLAP CLUSTERS (linear sweep per key block) ------------------
+
+setkeyv(dt, c(cluster_keys, "start_pos", "end_pos"))
+
+# Function to assign cluster IDs to overlapping intervals within a block
+assign_overlap_clusters <- function(block) {
+  # block is a data.table sorted by start_pos, end_pos
+  n <- nrow(block)
+  if (n == 0L) return(integer(0))
+  cluster_id <- integer(n)
+  current_id <- 1L
+  current_max_end <- block$end_pos[1]
+  cluster_id[1] <- current_id
+
+  for (i in 2:n) {
+    s <- block$start_pos[i]
+    e <- block$end_pos[i]
+    # If starts before or at current_max_end => overlaps current cluster
+    if (!is.na(s) && !is.na(current_max_end) && s <= current_max_end) {
+      cluster_id[i] <- current_id
+      # extend the cluster span if needed
+      if (!is.na(e) && e > current_max_end) current_max_end <- e
+    } else {
+      # starts after current cluster ends => new cluster
+      current_id <- current_id + 1L
+      cluster_id[i] <- current_id
+      current_max_end <- e
+    }
+  }
+  cluster_id
+}
+
+# Apply per group of cluster_keys
+dt[, .cluster_id := assign_overlap_clusters(.SD), by = cluster_keys]
+
+# ---- SELECT WINNER PER CLUSTER -------------------------------------------
+
+# Order by selection criteria:
+# 1) longest length (desc)
+# 2) higher coverage (desc) if available/desired
+# 3) earlier start_pos (asc)
+# 4) keep first (stable)
+ord_expr <- list(-length, start_pos)  # base
+if (prefer_higher_coverage && "coverage" %in% names(dt)) {
+  ord_expr <- append(list(-coverage), ord_expr, after = 1)
+}
+
+# Rank rows within each cluster and take the top
+dt[, .rank := frankv(list(!!!ord_expr), ties.method = "min"), by = c(cluster_keys, ".cluster_id")]
+winners <- dt[.rank == 1]
+
+# ---- OPTIONAL: keep a summary of what got merged (e.g., merged transcript_ids) ----
+# Build a summary per cluster to attach back if you want transparency
+cluster_summary <- dt[, .(
+  merged_transcripts = paste(unique(transcript_id), collapse = ";"),
+  n_collapsed = .N
+), by = c(cluster_keys, ".cluster_id")]
+
+winners <- merge(
+  winners,
+  cluster_summary,
+  by = c(cluster_keys, ".cluster_id"),
+  all.x = TRUE
 )
 
-missing <- setdiff(required_cols, names(df))
-if (length(missing) > 0) {
-  stop(sprintf("Missing required columns: %s", paste(missing, collapse = ", ")))
-}
+# ---- CLEAN & WRITE --------------------------------------------------------
 
-# ---- HELPERS --------------------------------------------------------------
+# You can drop helper columns if you like:
+winners[, c(".cluster_id", ".rank") := NULL]
 
-# Try to produce a gene-level ID from transcript_id
-derive_gene_id <- function(x, strip = TRUE) {
-  x <- as.character(x)
-  if (!strip) return(x)
-  # remove common isoform suffixes (edit/add patterns as needed)
-  # Examples matched: ".t1", ".T2", "-RA", "-RB", "_i1", "_iso2"
-  x %>%
-    str_replace("[._-][tT]\\d+$", "") %>%      # .t1 / -t2 / _T3
-    str_replace("[-_][Rr][A-Za-z0-9]+$", "") %>% # -RA / -RB / _Ra
-    str_replace("[-_][iI][0-9]+$", "") %>%     # _i1 / -i2
-    str_replace("[._-]iso\\d+$", "")           # .iso1 / -iso2
-}
+# Keep original column order where possible and append summaries at the end
+orig_cols <- names(dt)
+orig_cols <- setdiff(orig_cols, c(".cluster_id", ".rank"))  # remove helpers
+keep_order <- c(orig_cols, setdiff(names(winners), orig_cols))
 
-# Ensure numeric types for ranking
-to_num <- function(v) suppressWarnings(as.numeric(v))
+setcolorder(winners, keep_order)
 
-# ---- MAIN ----------------------------------------------------------------
+fwrite(winners, out_file, sep = "\t", na = "")
 
-df1 <- df %>%
-  mutate(
-    start_pos = to_num(start_pos),
-    end_pos   = to_num(end_pos),
-    coverage  = to_num(coverage),
-    length    = to_num(length),
-    gene_id   = derive_gene_id(transcript_id, strip = strip_isoform_suffix)
-  )
-
-# Redundancy key: same region + same gene
-group_key <- c("contig","start_pos","end_pos","orientation","gene_id")
-
-# Aggregate tissues per redundant group (preserve info)
-tissues_by_group <- df1 %>%
-  group_by(across(all_of(group_key))) %>%
-  summarize(
-    tissues_merged = paste(sort(unique(tissue_source)), collapse = ";"),
-    .groups = "drop"
-  )
-
-# Choose a single representative per redundant group
-order_cols <- intersect(prefer_by, names(df1))
-if (length(order_cols) == 0) order_cols <- character(0)
-
-dedup <- df1 %>%
-  group_by(across(all_of(group_key))) %>%
-  {
-    # build arrange() dynamically: descending by each preference
-    if (length(order_cols) > 0) {
-      arrange(., across(all_of(order_cols), ~ desc(.x)), .by_group = TRUE)
-    } else {
-      .
-    }
-  } %>%
-  slice_head(n = 1) %>%
-  ungroup() %>%
-  # attach merged tissue list (useful when we drop duplicates)
-  left_join(tissues_by_group, by = group_key) %>%
-  # keep original columns first, then add helpers at the end
-  select(all_of(names(df)), gene_id, tissues_merged)
-
-# ---- WRITE ----------------------------------------------------------------
-
-readr::write_tsv(dedup, out_file, na = "")
-
-message(sprintf(
-  "Done. Input rows: %d | Output rows: %d | Collapsed by: %s",
-  nrow(df), nrow(dedup), paste(group_key, collapse = ", ")
+cat(sprintf(
+  "Collapsed %d -> %d rows (%d removed). Grouped by: %s. Overlap criterion: intervals on same group.\n",
+  nrow(dt), nrow(winners), nrow(dt) - nrow(winners), paste(cluster_keys, collapse = ", ")
 ))
