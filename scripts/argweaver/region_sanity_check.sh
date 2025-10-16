@@ -8,5 +8,5 @@ bcftools view "/scratch/arghavan/LP/subsampling/split_poly_s100_scaffolds.sorted
 
 # check 1 tmrca value per 6 million 
 bcftools view "/scratch/arghavan/LP/subsampling/poly_s100_All_1a1b_renamed.vcf.gz" "scaffold_5:600000000-606310940" | wc -l
-#or
+#or R app viewer
 
