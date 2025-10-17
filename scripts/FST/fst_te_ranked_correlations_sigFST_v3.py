@@ -7,6 +7,17 @@ then compute ranked (Spearman) correlations:
   A) FST q  vs TE/TE-class Poisson q
   B) FST counts (C0.25_*) vs TE/TE-class counts
 
+
+
+USAGE
+python fst_te_ranked_correlations_sigFST_v3.py \
+  -i fst_windows_with_TEcounts__augmented.tsv \
+  -o results_sigFST_rankcorr_v3 \
+  --fst_q_threshold 0.05 \
+  --fst_count_choice C0.25
+
+
+
 Robust to constant inputs and degenerate cases. Plots omit the fit line when invalid.
 """
 
