@@ -31,6 +31,20 @@ Notes
 - Overlap logic: a gene is 'sig' for a comparison if it overlaps ANY window with q_poi_<comp> <= threshold.
   Otherwise it's 'not_sig'.
 - GO enrichment is presence/absence per gene (not weighted by multiple GO repeats on the same gene).
+
+
+USAGE
+-----
+python annotate_mrna_with_fst_sig_and_go_enrichment.py \
+  -a /Users/aria/Desktop/OSU_projects/conifers/LP/lodgepole_pine_assembly/1ab_mRNA_ID_merged_interproscan.txt \
+  -w fst_windows_with_TEcounts__augmented.tsv \
+  -o mrna_fst_sig_go_v1 \
+  --q_threshold 0.05 \
+  --go_col ipr_go_terms \
+  --id_col mrna_id \
+  --ann_chr new_seqid --ann_start new_start --ann_end new_end \
+  --win_chr CHROM --win_start WIN_START --win_end WIN_END
+
 """
 
 import argparse
