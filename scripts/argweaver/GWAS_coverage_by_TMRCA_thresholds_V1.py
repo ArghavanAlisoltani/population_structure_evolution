@@ -9,7 +9,7 @@ that fall inside segments with mean_tmrca in the top X% of the genome.
 Also (re)adds per-segment GWAS annotations (gwas_n, gwas_traits, gwas_snp_ids, gwas_any).
 
 ---
-USAGE
+Run example
 python GWAS_coverage_by_TMRCA_thresholds_V1.py \
   --tmrca fisher_mrna_out_v2/tmrca_with_mrna.tsv \
   --gwas "/Users/aria/Desktop/OSU_projects/conifers/LP/Soms_shared/Aria_MTAG_summary.txt" \
