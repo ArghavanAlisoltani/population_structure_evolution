@@ -15,18 +15,6 @@ Creates per-comparison summaries (3vs4, 3vs5, 4vs5) counting overlap among windo
 with q_poi_<comp> <= --q_threshold, and writes detail tables.
 
 Usage example (paths adapted below).
-
-
-python add_mtag_gwas_to_windows_and_summaries_v2.py \
-  -w fst_windows_with_TEcounts__augmented.tsv \
-  -g "/Users/aria/Desktop/OSU_projects/conifers/LP/Soms_shared/Aria_MTAG_summary.txt" \
-  -o fst_windows__WITH_MTAG.tsv \
-  --q_threshold 0.05 \
-  --win_chrom CHROM --win_start WIN_START --win_end WIN_END \
-  --gwas_pos position --gwas_scaf scaffold --gwas_trait trait --gwas_snp SNP \
-  --summary_out MTAG_FST_sig_overlap_summary.tsv \
-  --details_dir MTAG_FST_sig_details
-
 """
 
 import argparse
