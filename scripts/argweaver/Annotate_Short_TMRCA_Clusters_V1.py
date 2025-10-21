@@ -17,6 +17,18 @@ Outputs:
   - tmrca_with_short_clusters.tsv  (per-segment annotations)
   - short_clusters.tsv             (cluster summary)
   - summary.txt
+
+
+  ---
+  Run example
+  
+  python Annotate_Short_TMRCA_Clusters_V1.py \
+  --tmrca annotated_tmrca_4_GPT_13columns.tsv \
+  --short-max 100 \
+  --short-criterion lt \
+  --near-gap 200 \
+  --outdir short_tmrca_clusters_out
+
 """
 
 import argparse
