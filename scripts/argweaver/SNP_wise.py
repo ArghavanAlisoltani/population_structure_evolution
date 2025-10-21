@@ -1,0 +1,1 @@
+#SNP wise calculations
