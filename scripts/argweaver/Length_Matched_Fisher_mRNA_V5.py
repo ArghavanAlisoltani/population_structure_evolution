@@ -21,6 +21,7 @@ Outputs
 - If mode=bin:     fisher_by_lenbin_mRNA_segments.tsv / fisher_by_lenbin_mRNA_regions.tsv
 - length_frequencies_mRNA_segments.tsv and length_frequencies_mRNA_regions.tsv always reflect the chosen key (length or bin).
 
+---
 Run example
 python Length_Matched_Fisher_mRNA_V5.py \
   --tmrca annotated_tmrca_4_GPT_13columns.tsv \
