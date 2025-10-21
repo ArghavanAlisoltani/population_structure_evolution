@@ -33,7 +33,7 @@ Notes
 - GO enrichment is presence/absence per gene (not weighted by multiple GO repeats on the same gene).
 
 
-USAGE
+Run example
 -----
 python annotate_mrna_with_fst_sig_and_go_enrichment.py \
   -a /Users/aria/Desktop/OSU_projects/conifers/LP/lodgepole_pine_assembly/1ab_mRNA_ID_merged_interproscan.txt \
