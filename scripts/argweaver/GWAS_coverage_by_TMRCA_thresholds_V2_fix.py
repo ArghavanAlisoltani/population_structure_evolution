@@ -4,6 +4,10 @@
 GWAS_coverage_by_TMRCA_thresholds_V2_fix.py
 - Fixes KeyError: 'trait' when merging per-trait totals by renaming g_trait -> trait.
 - Otherwise identical to V2.
+
+---
+Run example
+
 """
 
 import argparse
