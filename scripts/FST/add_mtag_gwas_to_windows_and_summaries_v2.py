@@ -14,7 +14,8 @@ Adds columns:
 Creates per-comparison summaries (3vs4, 3vs5, 4vs5) counting overlap among windows
 with q_poi_<comp> <= --q_threshold, and writes detail tables.
 
-Usage example (paths adapted below).
+---
+Run example (paths adapted below).
 
 python add_mtag_gwas_to_windows_and_summaries_v2.py \
   -w fst_windows_with_TEcounts__augmented.tsv \
