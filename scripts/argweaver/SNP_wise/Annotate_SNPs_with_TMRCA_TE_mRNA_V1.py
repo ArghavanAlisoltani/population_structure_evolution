@@ -6,7 +6,8 @@ Annotate_SNPs_with_TMRCA_TE_mRNA_V1.py
 Annotate SNPs with TMRCA, TE, and mRNA.
 See header for details and CLI options.
 
---- USAGE
+--- 
+Run Example 
 
 python Annotate_SNPs_with_TMRCA_TE_mRNA_V1.py \
   --tmrca annotated_tmrca_4_GPT_13columns.tsv \
