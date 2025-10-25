@@ -7,6 +7,13 @@ Annotate SNPs with TMRCA, TE, and mRNA.
 See header for details and CLI options.
 
 --- USAGE
+python Annotate_SNPs_with_TMRCA_TE_mRNA_V1.py \
+  --tmrca annotated_tmrca_4_GPT_13columns.tsv \
+  --snps  "/Users/aria/Desktop/OSU_projects/conifers/LP/vcf_v1/positions_split_poly_s100_scaffolds.tsv" \
+  --te    "/Users/aria/Desktop/OSU_projects/conifers/LP/lodgepole_pine_assembly/col8_readable.TEanno.cds.scaf1ab.tsv" \
+  --mrna  "/Users/aria/Desktop/OSU_projects/conifers/LP/lodgepole_pine_assembly/1ab_mRNA_ID_merged_interproscan.txt" \
+  --top-percentile 5 \
+  --out   snps_annotated_tmrca_te_mrna.tsv
 
 """
 
