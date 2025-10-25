@@ -5,6 +5,18 @@ Annotate_GWAS_with_TMRCA_V2.py
 ------------------------------
 Attach mean TMRCA to each GWAS row and label 'top'/'background'.
 NEW: per-trait stats (mean, median, SD) over non-missing mean TMRCA.
+
+---
+Run example
+python Annotate_GWAS_with_TMRCA_V1.py \
+  --tmrca annotated_tmrca_4_GPT_13columns.tsv \
+  --gwas  "/Users/aria/Desktop/OSU_projects/conifers/LP/Soms_shared/Aria_MTAG_summary.txt" \
+  --gwas-scaffold-col scaffold --gwas-pos-col position --gwas-trait-col trait --gwas-snp-col SNP \
+  --top-percentile 5 \
+  --out   gwas_mtag_with_tmrca.tsv
+
+
+
 """
 
 import argparse
