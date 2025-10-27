@@ -1,4 +1,7 @@
+####################
 #load libraries
+####################
+
 library(data.table)
 library(readxl)
 
@@ -21,7 +24,7 @@ nrow(df)*0.5
 
 
 ####################
-#snp-wise
+#snp-wise 
 ####################
 
 snps <- read_excel("snps_annotated_tmrca_te_mrna.xlsx",
