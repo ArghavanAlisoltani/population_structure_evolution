@@ -11,7 +11,7 @@ Run Examples
 
 python Annotate_SNPs_with_TMRCA_TE_mRNA_V1.py \
   --tmrca annotated_tmrca_4_GPT_13columns.tsv \
-  --snps  "/Users/aria/Desktop/OSU_projects/conifers/LP/vcf_v1/positions_split_poly_s100_scaffolds.tsv" \
+  --snps  "/Users/aria/Desktop/OSU_projects/conifers/LP/vcf_v1/positions_poly_s100_All_1a1b_renamed.txt" \
   --te    "/Users/aria/Desktop/OSU_projects/conifers/LP/lodgepole_pine_assembly/col8_readable.TEanno.cds.scaf1ab.tsv" \
   --mrna  "/Users/aria/Desktop/OSU_projects/conifers/LP/lodgepole_pine_assembly/1ab_mRNA_ID_merged_interproscan.txt" \
   --top-percentile 5 \
@@ -20,7 +20,7 @@ python Annotate_SNPs_with_TMRCA_TE_mRNA_V1.py \
 
   python Annotate_SNPs_with_TMRCA_TE_mRNA_V1.py \
   --tmrca  "/Users/aria/Desktop/OSU_projects/conifers/LP/ARGweaver/oct_27_2025/all_tmrca_corrected_position.tsv" \
-  --snps   "/Users/aria/Desktop/OSU_projects/conifers/LP/vcf_v1/positions_split_poly_s100_scaffolds.tsv" \
+  --snps   "/Users/aria/Desktop/OSU_projects/conifers/LP/vcf_v1/positions_poly_s100_All_1a1b_renamed.txt" \
   --te     "/Users/aria/Desktop/OSU_projects/conifers/LP/lodgepole_pine_assembly/col8_readable.TEanno.cds.scaf1ab.tsv" \
   --mrna   "/Users/aria/Desktop/OSU_projects/conifers/LP/lodgepole_pine_assembly/1ab_mRNA_ID_merged_interproscan.txt" \
   --te-chrom seqid --te-start start --te-end end --te-class sequence_ontology \
