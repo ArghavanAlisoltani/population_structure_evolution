@@ -2,7 +2,7 @@
 library(data.table)
 library(readxl)
 
-#import data
+#set directory and import data
 setwd("~/Desktop/OSU_projects/conifers/LP/ARGweaver/all_tmrca/all_tmrca")
 df<-data.frame(fread("fisher_mrna_out_v5/tmrca_with_mrna.tsv")) #start of the header
 summary(df$mean_tmrca)
