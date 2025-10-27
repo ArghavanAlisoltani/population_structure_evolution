@@ -20,6 +20,15 @@ python Annotate_GWAS_with_TMRCA_V2.py \
   --out   gwas_mtag_with_tmrca.tsv
 
 
+python Annotate_GWAS_with_TMRCA_V2.py \
+  --tmrca  /Users/aria/Desktop/OSU_projects/conifers/LP/ARGweaver/oct_27_2025/all_tmrca_corrected_position.tsv \
+  --gwas   /Users/aria/Desktop/OSU_projects/conifers/LP/Soms_shared/Aria_MTAG_summary.txt \
+  --gwas-scaffold-col scaffold \
+  --gwas-pos-col position \
+  --gwas-trait-col trait \
+  --gwas-snp-col SNP \
+  --top-percentile 5 \
+  --out   gwas_mtag_with_tmrca_oct_27_2025.tsv
 
 
 """
