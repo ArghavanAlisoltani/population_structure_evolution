@@ -56,6 +56,8 @@ os.makedirs(os.path.join(OUT_DIR, "figures"), exist_ok=True)
 
 # -------- helpers --------
 def load_fst(fname):
+    """Read the FST window CSV and ensure required columns are present."""
+
     df = pd.read_csv(fname)
     # required columns check (abbrev)
     must = ["CHROM","WIN_START","WIN_END","q_poi_3vs4","q_poi_3vs5","q_poi_4vs5"]
@@ -65,6 +67,8 @@ def load_fst(fname):
     return df
 
 def load_te(fname):
+    """Read the TE annotation TSV and normalise expected columns."""
+
     te = pd.read_csv(fname, sep="\t", header=0)
     te = te.rename(columns=str.strip)
     # enforce expected header names
@@ -77,6 +81,8 @@ def load_te(fname):
     return te
 
 def scaffold_order(chroms):
+    """Return scaffold names sorted numerically with a/b suffix ordering."""
+
     # order like scaffold_1a, 1b, 2, 3, ...
     def keyer(s):
         # extract integer and trailing letter if present
@@ -93,6 +99,8 @@ def scaffold_order(chroms):
     return sorted(list(set(chroms)), key=keyer)
 
 def add_genome_x(df, chrom_col="CHROM", pos_col="WIN_MID"):
+    """Attach genome-wide x-coordinates for Manhattan-style plots."""
+
     # build cumulative offsets for Manhattan x
     order = scaffold_order(df[chrom_col].unique())
     offsets = {}
@@ -106,6 +114,8 @@ def add_genome_x(df, chrom_col="CHROM", pos_col="WIN_MID"):
     return df, order
 
 def label_two_groups(so):
+    """Map a sequence ontology string to one of the two broad TE groups."""
+
     s = str(so).lower()
     for g, keys in GROUPS.items():
         for k in keys:
@@ -211,9 +221,13 @@ def interval_overlap_count(te_df, windows_df):
     return res
 
 def is_sig_fst(row, pair):
+    """Return True if the Poisson q-value for ``pair`` is below the cutoff."""
+
     return (row[f"q_poi_{pair}"] < Q_CUT) if f"q_poi_{pair}" in row else False
 
 def glm_counts(y, group_sig, offset_len, family="poisson"):
+    """Fit Poisson/NB GLMs comparing TE counts between significant and non-significant windows."""
+
     # model: count ~ is_sig + offset(log(length))
     X = pd.DataFrame({"intercept":1.0, "is_sig": group_sig.astype(int)})
     off = np.log(np.clip(offset_len.astype(float), 1.0, None))
@@ -291,6 +305,8 @@ for pair in pairs:
 # BH-FDR within each (pair,type,feature)
 stats = pd.DataFrame(stats_rows)
 def bh(df, pcol="p"):
+    """Apply Benjamini–Hochberg FDR correction to column ``pcol``."""
+
     p = df[pcol].astype(float)
     m = p.notna().sum()
     ranks = p.rank(method="min")
@@ -321,6 +337,8 @@ joint[joint_cols].to_csv(joint_out, sep="\t", index=False)
 
 # ------------- plots: Manhattan (FST q) -------------
 def manhattan_q(df, pair, out_png, title):
+    """Generate a Manhattan panel showing −log10(q) for the selected comparison."""
+
     sub = df.copy()
     sub["q"] = sub[f"q_poi_{pair}"].astype(float)
     sub["mlogq"] = -np.log10(sub["q"].clip(lower=1e-300))
@@ -356,6 +374,8 @@ for pair in pairs:
 
 # -------- violin/box: density & counts (two groups) ----------
 def violin_by_sig(df, pair, feats, kind="density"):
+    """Create violin plots comparing TE metrics between significant and other windows."""
+
     fig, axes = plt.subplots(len(feats), 1, figsize=(10, 3.2*len(feats)), sharex=True)
     if len(feats)==1: axes=[axes]
     for ax, feat in zip(axes, feats):

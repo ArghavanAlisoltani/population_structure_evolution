@@ -85,6 +85,8 @@ random.seed(1)
 _scaf_pat = re.compile(r"scaffold[_\-]?(\d+)([ab])?$", re.IGNORECASE)
 
 def scaffold_sort_key(s: str):
+    """Return a sortable tuple for scaffold IDs like 'scaffold_1a'."""
+
     m = _scaf_pat.search(s)
     if not m:
         return (1e9, s)
@@ -94,6 +96,8 @@ def scaffold_sort_key(s: str):
     return (num, suf_rank)
 
 def read_fst_windows(path: str) -> pd.DataFrame:
+    """Read the primary FST window CSV and enforce the required schema."""
+
     df = pd.read_csv(path)
     need = ["CHROM","WIN_START","WIN_END","WIN_MID",
             "q_poi_3vs4","q_poi_3vs5","q_poi_4vs5"]
@@ -110,11 +114,15 @@ def read_fst_windows(path: str) -> pd.DataFrame:
     return df
 
 def _has_header(path: str, first_col_name: str) -> bool:
+    """Return ``True`` if the first field of ``path`` matches ``first_col_name``."""
+
     with open(path, "r") as fh:
         first = fh.readline().strip().split("\t")[0]
         return first == first_col_name
 
 def read_te_table(path: str) -> pd.DataFrame:
+    """Read the TE annotation table and normalise column types/order."""
+
     cols = ["seqid","source","sequence_ontology","start","end","score","strand"]
     te = pd.read_csv(path, sep="\t", names=cols,
                      header=0 if _has_header(path, cols[0]) else None)
@@ -127,6 +135,8 @@ def read_te_table(path: str) -> pd.DataFrame:
     return te
 
 def read_gwas(path: str) -> pd.DataFrame:
+    """Read the optional GWAS Excel file used for Manhattan annotations."""
+
     if not Path(path).exists():
         print(f"[WARN] GWAS file not found at {path}; GWAS-annotated panels will be skipped.")
         return pd.DataFrame(columns=["Scaffold","Pos","traits"])
@@ -144,6 +154,8 @@ def read_gwas(path: str) -> pd.DataFrame:
 # TE overlaps per window
 # =========================
 def _count_overlaps_one_chrom(wins: pd.DataFrame, tes: pd.DataFrame, te_types: np.ndarray):
+    """Count TE overlaps for windows on a single chromosome using a two-pointer scan."""
+
     w_st = wins["WIN_START"].to_numpy(dtype=np.int64)
     w_en = wins["WIN_END"].to_numpy(dtype=np.int64)
     nW   = len(wins)
@@ -175,6 +187,8 @@ def _count_overlaps_one_chrom(wins: pd.DataFrame, tes: pd.DataFrame, te_types: n
     return total_counts, per_type
 
 def count_te_overlaps_per_window(fst_df: pd.DataFrame, te_df: pd.DataFrame):
+    """Augment the FST windows with total and per-class TE overlap counts."""
+
     te_types = np.array(sorted(te_df["sequence_ontology"].astype(str).unique()))
     base = fst_df[["CHROM","WIN_START","WIN_END","WIN_LEN","WIN_MID"]].copy().reset_index(drop=True)
 
@@ -209,6 +223,8 @@ def count_te_overlaps_per_window(fst_df: pd.DataFrame, te_df: pd.DataFrame):
 # Genome axis (Gb) helpers
 # =========================
 def build_genome_coords(df):
+    """Create genome-wide x coordinates for Manhattan plots."""
+
     scafs = sorted(df["CHROM"].unique(), key=scaffold_sort_key)
     offsets = {}
     current = 0
@@ -225,6 +241,8 @@ def build_genome_coords(df):
 # GWAS overlap
 # =========================
 def add_gwas_overlap_columns(df_aug: pd.DataFrame, gwas_df: pd.DataFrame) -> pd.DataFrame:
+    """Append per-window GWAS overlap indicators and trait summaries."""
+
     if gwas_df is None or len(gwas_df) == 0:
         df_aug = df_aug.copy()
         df_aug["GWAS_n_hits"] = 0
@@ -273,6 +291,8 @@ def add_gwas_overlap_columns(df_aug: pd.DataFrame, gwas_df: pd.DataFrame) -> pd.
 # GLM helpers
 # =========================
 def dispersion_ratio(y, mu, df_adj=1):
+    """Return the Pearson Chi² dispersion ratio for GLM residuals."""
+
     y = np.asarray(y, float); mu = np.asarray(mu, float)
     ok = mu > 0
     if ok.sum() <= 1:
@@ -280,14 +300,20 @@ def dispersion_ratio(y, mu, df_adj=1):
     return float(np.sum(((y[ok]-mu[ok])**2)/mu[ok]) / max(ok.sum()-df_adj, 1))
 
 def clamp_exp(x):  # safe exp for CI
+    """Exponentiate while avoiding floating point overflow."""
+
     return float(np.exp(np.clip(x, -700, 700)))
 
 def fit_glm_poisson(y, X, offset=None):
+    """Fit a Poisson GLM with optional log-offset and return the result."""
+
     fam = Poisson(link=links.Log())
     model = GLM(y, X, family=fam, offset=offset)
     return model.fit()
 
 def estimate_nb_alpha(y, mu):
+    """Method-of-moments estimate for the NB dispersion parameter alpha."""
+
     numer = np.sum((y - mu) ** 2 - mu)
     denom = np.sum(mu ** 2)
     if denom <= 0:
@@ -296,11 +322,15 @@ def estimate_nb_alpha(y, mu):
     return float(max(alpha, 1e-8))
 
 def fit_glm_nb(y, X, offset=None, alpha=1.0):
+    """Fit a Negative Binomial GLM with a fixed alpha."""
+
     fam = NegativeBinomial(alpha=alpha, link=links.Log())
     model = GLM(y, X, family=fam, offset=offset)
     return model.fit()
 
 def glm_compare_counts(y, group, offset_log=None, prefer_nb_if_overdispersed=True):
+    """Compare group counts using Poisson/NB GLMs and return tidy summaries."""
+
     X = pd.DataFrame({"intercept": 1.0, "group": group.astype(float)})
     res_p = fit_glm_poisson(y, X, offset=offset_log)
     mu_p  = res_p.fittedvalues
@@ -330,6 +360,8 @@ def glm_compare_counts(y, group, offset_log=None, prefer_nb_if_overdispersed=Tru
 # Presence tests (overall & per-class)
 # =========================
 def presence_tests(df, is_sig, count_col):
+    """Fisher exact tests for TE presence vs FST significance."""
+
     a = int((df.loc[ is_sig, count_col] >= 1).sum())
     b = int((df.loc[ is_sig, count_col] == 0).sum())
     c = int((df.loc[~is_sig, count_col] >= 1).sum())
@@ -346,6 +378,8 @@ def presence_tests(df, is_sig, count_col):
 # Nonparametric & permutation
 # =========================
 def wilcoxon_density(df, is_sig):
+    """Wilcoxon rank-sum statistics for TE densities split by significance."""
+
     x_sig = df.loc[ is_sig, "TE_density"].astype(float).to_numpy()
     x_not = df.loc[~is_sig, "TE_density"].astype(float).to_numpy()
     if len(x_sig)==0 or len(x_not)==0:
@@ -360,7 +394,9 @@ def wilcoxon_density(df, is_sig):
                 rbes=float(rbes))
 
 def block_permutation_mean_diff(df, is_sig, n_perm=1000, block_size=5_000_000):
-    """Permutation test on mean TE_density, shuffling labels within scaffold blocks."""
+    """Block permutation test for mean density differences respecting spatial structure."""
+
+    # Permutation test on mean TE_density, shuffling labels within scaffold blocks.
     # Build blocks
     blocks = []
     for sc, sub in df.groupby("CHROM"):
@@ -398,13 +434,19 @@ def block_permutation_mean_diff(df, is_sig, n_perm=1000, block_size=5_000_000):
 # Plot helpers
 # =========================
 def _alpha_from_q(qseries):
+    """Convert q-values to alpha thresholds while clamping extremes."""
+
     return np.where(qseries < Q_CUTOFF, ALPHA_SIG, ALPHA_NONSIG)
 
 def _axes_common_style(ax):
+    """Apply shared styling tweaks used by Manhattan panels."""
+
     ax.grid(axis="y", alpha=0.25)
     ax.tick_params(labelsize=BASE_FONTSIZE-1)
 
 def _scatter_by_scaffold(ax, df, color_a=COLOR_SCAF_A, color_b=COLOR_SCAF_B, y_col="Y", alpha=None):
+    """Scatter helper alternating scaffold colours for readability."""
+
     scafs = sorted(df["CHROM"].unique(), key=scaffold_sort_key)
     for i, s in enumerate(scafs):
         sub = df[df["CHROM"]==s]
@@ -413,6 +455,8 @@ def _scatter_by_scaffold(ax, df, color_a=COLOR_SCAF_A, color_b=COLOR_SCAF_B, y_c
         ax.scatter(sub["X_Gb"], sub[y_col], c=col, s=POINT_SIZE, alpha=a, edgecolors="none", zorder=2)
 
 def manhattan_q_panels_by_feature(df_aug, feature_col, outdir, gwas_df=None):
+    """Render multi-row Manhattan plots for a TE feature across comparisons."""
+
     comps = ["3vs4","3vs5","4vs5"]
     qmap = {c: f"q_poi_{c}" for c in comps}
     safe_feat = feature_col.replace("/", "_").replace(" ", "_")
@@ -488,6 +532,8 @@ def manhattan_q_panels_by_feature(df_aug, feature_col, outdir, gwas_df=None):
     return outA, outB
 
 def manhattan_q_panels_GWAS_only(fst_df_with_coords, outdir, gwas_df):
+    """Plot Manhattan panels restricted to GWAS hits."""
+
     comps = ["3vs4","3vs5","4vs5"]; qmap = {c: f"q_poi_{c}" for c in comps}
     base = fst_df_with_coords.copy()
     for c in comps:
@@ -525,6 +571,8 @@ def manhattan_q_panels_GWAS_only(fst_df_with_coords, outdir, gwas_df):
     return out
 
 def manhattan_counts_panel(df_aug, feature, outdir):
+    """Plot Manhattan-style panels showing raw TE counts by window."""
+
     comps = ["3vs4","3vs5","4vs5"]; qmap = {c: f"q_poi_{c}" for c in comps}
     safe_feat = feature.replace("/", "_").replace(" ", "_")
     base = df_aug[["CHROM","WIN_START","WIN_END","WIN_MID", feature,
@@ -548,6 +596,8 @@ def manhattan_counts_panel(df_aug, feature, outdir):
 
 # New diagnostics figures
 def plot_dispersion_bars(disp_df, outpath):
+    """Plot bar charts summarising dispersion ratios for GLM fits."""
+
     fig, ax = plt.subplots(figsize=(7, 4))
     order = ["3vs4","3vs5","4vs5"]
     vals = [disp_df.loc[disp_df["comparison"]==c, "dispersion"].values[0] for c in order]
@@ -560,6 +610,8 @@ def plot_dispersion_bars(disp_df, outpath):
     fig.savefig(outpath, dpi=220); plt.close(fig)
 
 def plot_density_violins(df_aug, comp, outpath):
+    """Create violin/box plots comparing TE densities across significance groups."""
+
     mask = (df_aug[f"q_poi_{comp}"] < Q_CUTOFF)
     dfp = pd.DataFrame({
         "group": np.where(mask, "significant", "not_significant"),
@@ -583,6 +635,8 @@ def plot_density_violins(df_aug, comp, outpath):
     fig.savefig(outpath, dpi=220); plt.close(fig)
 
 def plot_count_histograms(df_aug, comp, outpath):
+    """Plot histograms of TE counts for significant vs non-significant windows."""
+
     mask = (df_aug[f"q_poi_{comp}"] < Q_CUTOFF)
     fig, ax = plt.subplots(figsize=(7, 4))
     ax.hist(df_aug.loc[ mask,"TE_count"], bins=50, alpha=0.6, color=COLOR_SIG, label="significant")
@@ -600,9 +654,13 @@ def plot_count_histograms(df_aug, comp, outpath):
 # NEW: Sig vs Not presence & summaries (kept from v8 and reused)
 # =========================
 def _sig_mask(df, comp, q_cutoff=Q_CUTOFF):
+    """Return a boolean mask for windows significant for the comparison."""
+
     return (df[f"q_poi_{comp}"] < q_cutoff)
 
 def _presence_counts(df, mask_sig, te_col="TE_count"):
+    """Count TE presence/absence separated by significance mask."""
+
     sig_with    = int((df.loc[ mask_sig, te_col] >= 1).sum())
     sig_without = int((df.loc[ mask_sig, te_col] == 0).sum())
     non_with    = int((df.loc[~mask_sig, te_col] >= 1).sum())
@@ -610,6 +668,8 @@ def _presence_counts(df, mask_sig, te_col="TE_count"):
     return sig_with, sig_without, non_with, non_without
 
 def _desc(df, mask):
+    """Compute descriptive statistics for TE columns under a mask."""
+
     x = df.loc[mask, "TE_count"].astype(int)
     return dict(
         n_windows     = int(mask.sum()),
@@ -621,6 +681,8 @@ def _desc(df, mask):
     )
 
 def write_sig_te_summaries(df_aug, outdir, q_cutoff=Q_CUTOFF):
+    """Export summary TSVs describing TE presence and densities by significance."""
+
     outdir = Path(outdir); outdir.mkdir(parents=True, exist_ok=True)
     comps = ["3vs4","3vs5","4vs5"]
 
