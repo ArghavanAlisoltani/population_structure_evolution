@@ -46,6 +46,7 @@ from statsmodels.genmod.families.links import log as LogLink
 PAIRS = ["3vs4","3vs5","4vs5"]
 
 def parse_args():
+    """Parse command-line options for the Gypsy/Copia enrichment add-on."""
     ap = argparse.ArgumentParser()
     ap.add_argument("--in", dest="infile", required=True,
                     help="Path to fst_windows_with_TEcounts.tsv (from v9)")
@@ -118,6 +119,7 @@ def derive_gypsy_copia(df):
     return df
 
 def get_sig_mask(df, pair, qcut):
+    """Return a boolean mask where Poisson q-values for ``pair`` are below ``qcut``."""
     col = f"q_poi_{pair}"
     if col not in df.columns:
         raise ValueError(f"Missing FST q-value column: {col}")
@@ -216,6 +218,7 @@ def glm_interaction_counts(df, pair, family="poisson"):
     return out
 
 def save_plots(df, pair, outdir, qcut):
+    """Create a quick scatter plot summarising Gypsy/Copia counts by significance."""
     # Simple dot plot of Gypsy/Copia counts per window (optional)
     fig, ax = plt.subplots(1, 1, figsize=(8, 4))
     sig = get_sig_mask(df, pair, qcut)

@@ -33,6 +33,7 @@ from statsmodels.genmod.families.links import log as LogLink
 PAIRS = ["3vs4","3vs5","4vs5"]
 
 def parse_args():
+    """Parse command-line options for the enrichment workflow."""
     ap = argparse.ArgumentParser()
     ap.add_argument("--in", dest="infile", required=True,
                     help="Path to v9 output TSV (fst_windows_with_TEcounts.tsv)")
@@ -45,6 +46,7 @@ def parse_args():
     return ap.parse_args()
 
 def check_required_columns(df):
+    """Ensure the v9 table contains the columns needed for Gypsy/Copia analyses."""
     required = [
         "CHROM","WIN_START","WIN_END","WIN_MID","WIN_LEN",
         "q_poi_3vs4","q_poi_3vs5","q_poi_4vs5",
@@ -59,7 +61,7 @@ def check_required_columns(df):
             raise ValueError(f"Missing required columns: {missing}")
 
 def add_gypsy_copia_columns(df):
-    """Create Gypsy/Copia count & density columns using EXACT names; fallback to count/WIN_LEN if needed."""
+    """Create Gypsy/Copia count & density columns with fallbacks when densities are absent."""
     df = df.copy()
     # counts
     df["Gypsy_count"] = pd.to_numeric(df["TE_Gypsy_LTR_retrotransposon"], errors="coerce").fillna(0).astype(float)
@@ -80,6 +82,7 @@ def add_gypsy_copia_columns(df):
     return df
 
 def get_sig_mask(df, pair, qcut):
+    """Return a boolean mask where Poisson q-values for ``pair`` are below ``qcut``."""
     col = f"q_poi_{pair}"
     q = pd.to_numeric(df[col], errors="coerce")
     return (q < qcut)
@@ -96,12 +99,7 @@ def fisher_presence(sig_mask, has_feat):
     return {"a":a,"b":b,"c":c,"d":d,"odds":odds,"p":p}
 
 def glm_interaction_counts(df, pair, family="poisson", qcut=0.05):
-    """
-    Long-format GLM:
-      count ~ te_type (Gypsy/Copia) + is_sig + te_type:is_sig
-      offset = log(WIN_LEN)
-    Returns dict with dispersion + interaction stats.
-    """
+    """Fit Gypsy-vs-Copia GLMs with a significance interaction term."""
     d = df.copy()
     # ensure numeric
     d["Gypsy_count"] = pd.to_numeric(d["Gypsy_count"], errors="coerce").fillna(0).astype(float)

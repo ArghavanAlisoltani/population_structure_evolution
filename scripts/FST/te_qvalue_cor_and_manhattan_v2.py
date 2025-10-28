@@ -183,6 +183,7 @@ def manhattan_plot(df, chrom_col, cumpos_col, y_col, out_png,
     plt.close()
 
 def parse_args():
+    """Parse CLI arguments for correlation and Manhattan plotting utilities."""
     ap = argparse.ArgumentParser()
     ap.add_argument("--in", dest="infile", required=True,
                     help="fst_windows_with_TEcounts__augmented.tsv")

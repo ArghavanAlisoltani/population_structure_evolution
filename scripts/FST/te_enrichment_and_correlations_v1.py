@@ -72,6 +72,7 @@ Q_POI_COLS_DEFAULT = ["q_poi_3vs4", "q_poi_3vs5", "q_poi_4vs5"]
 # -------------------------
 
 def parse_args():
+    """Parse command-line arguments for TE enrichment and correlation analyses."""
     ap = argparse.ArgumentParser()
     ap.add_argument("--in", dest="infile", required=True, help="Input TSV (v9 table)")
     ap.add_argument("--outdir", default="te_teclass_enrichment_out", help="Output directory")

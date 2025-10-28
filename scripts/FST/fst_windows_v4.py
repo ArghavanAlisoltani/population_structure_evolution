@@ -42,6 +42,7 @@ OUTDIR.mkdir(parents=True, exist_ok=True)
 # IO & cleaning
 # ==================================
 def load_and_clean(in_path: str) -> pd.DataFrame:
+    """Read the site-level FST table and retain the columns needed for windowing."""
     need = ["CHROM", "POS", "PROC3_vs_PROC4", "PROC3_vs_PROC5", "PROC4_vs_PROC5"]
     df = pd.read_csv(in_path, sep="\t")
     missing = [c for c in need if c not in df.columns]
@@ -62,6 +63,7 @@ def load_and_clean(in_path: str) -> pd.DataFrame:
 # Windowing & counting
 # ==================================
 def windows_for_scaffold(pos_min: int, pos_max: int, win_size: int, overlap: int) -> np.ndarray:
+    """Generate [start, end] windows across a scaffold using sliding windows."""
     step = win_size - overlap
     if step <= 0:
         raise ValueError("overlap must be smaller than window size (step <= 0).")
@@ -70,6 +72,7 @@ def windows_for_scaffold(pos_min: int, pos_max: int, win_size: int, overlap: int
     return np.vstack([starts, ends]).T
 
 def count_in_windows_for_scaffold(pos: np.ndarray, vals: dict, win_arr: np.ndarray) -> dict:
+    """Count positions exceeding thresholds within each window via a two-pointer scan."""
     # Two-pointer scan
     N = pos.size
     M = win_arr.shape[0]
@@ -99,6 +102,7 @@ def count_in_windows_for_scaffold(pos: np.ndarray, vals: dict, win_arr: np.ndarr
 # Tests (Bin, Poi, BetaBin, NegBin) + FDR + dispersion
 # ==================================
 def bh_fdr(p):
+    """Benjamini–Hochberg FDR correction for a 1D iterable of p-values."""
     p = np.asarray(p, float)
     mask = np.isfinite(p)
     q = np.full_like(p, np.nan, dtype=float)
@@ -107,6 +111,7 @@ def bh_fdr(p):
     return q
 
 def tests_for_comp(dfw: pd.DataFrame, lab: str) -> pd.DataFrame:
+    """Compute multiple count-based tests for a given comparison label."""
     """
     lab in {"3vs4", "3vs5", "4vs5"}.
     Adds columns:
@@ -220,6 +225,7 @@ def tests_for_comp(dfw: pd.DataFrame, lab: str) -> pd.DataFrame:
 # Analysis per (win, overlap)
 # ==================================
 def analyze_one_combo(df: pd.DataFrame, win_size: int, overlap: int) -> pd.DataFrame:
+    """Aggregate site-level data into window statistics for one (win_size, overlap) combo."""
     results = []
     for chrom, dfc in df.groupby("CHROM", sort=False):
         pos = dfc["POS"].to_numpy(np.int64)
@@ -267,6 +273,7 @@ def analyze_one_combo(df: pd.DataFrame, win_size: int, overlap: int) -> pd.DataF
 # Plot helpers (ratio + Manhattan with 3 panels)
 # ==================================
 def save_ratio_plot(dfw: pd.DataFrame, scaffold: str, win_size: int, overlap: int, outdir: Path) -> Path | None:
+    """Plot ratio-of-counts diagnostics for a scaffold and return the image path."""
     sub = dfw[dfw["CHROM"] == scaffold].copy()
     if sub.empty:
         return None
@@ -290,17 +297,14 @@ def save_ratio_plot(dfw: pd.DataFrame, scaffold: str, win_size: int, overlap: in
     return out_png
 
 def scaffold_sort_key(chrom: str):
+    """Produce a sortable key that orders scaffolds numerically then lexically."""
     # Extract first integer in CHROM for numeric ordering; fall back to name
     m = re.search(r"(\d+)", chrom)
     return (int(m.group(1)) if m else 10**12, chrom)
 
 def make_manhattan_three(dfw: pd.DataFrame, test_kind: str, out_png: Path, title_prefix: str,
                          qcols_map: dict, top_n: int = 10):
-    """
-    Make a single Manhattan figure with 3 rows (3vs4, 3vs5, 4vs5) for a given test kind.
-    qcols_map: {"3vs4": "q_poi_3vs4", "3vs5": "...", "4vs5": "..."} or the NB equivalents
-    Colors: sig (q<0.05)=black, non-sig=gray; top10=red with labels.
-    """
+    """Render a three-panel Manhattan plot for the supplied test kind."""
     if dfw.empty:
         return None
 
@@ -367,6 +371,7 @@ def make_manhattan_three(dfw: pd.DataFrame, test_kind: str, out_png: Path, title
 # Report slides
 # ==================================
 def add_slide(prs, title, bullets=None, image=None):
+    """Append a slide with optional bullet list and image to the presentation."""
     layout = prs.slide_layouts[5]  # Title Only
     slide = prs.slides.add_slide(layout)
     slide.shapes.title.text = title
@@ -381,6 +386,7 @@ def add_slide(prs, title, bullets=None, image=None):
         slide.shapes.add_picture(str(image), Inches(0.5), Inches(2.8), height=Inches(3.8))
 
 def make_comparison_plots(summary_df: pd.DataFrame, outdir: Path) -> list[Path]:
+    """Create comparison line plots summarising significant-window counts."""
     imgs = []
     # test kinds to plot across window sizes (lines per overlap)
     for testkind in ["bin", "poi", "bb", "nb"]:
@@ -406,6 +412,7 @@ def make_comparison_plots(summary_df: pd.DataFrame, outdir: Path) -> list[Path]:
     return imgs
 
 def make_report(all_summaries: list, pptx_path: Path, comparison_imgs: list[Path]):
+    """Assemble a PowerPoint report from summaries and generated figures."""
     prs = Presentation()
     # Title
     slide = prs.slides.add_slide(prs.slide_layouts[0])

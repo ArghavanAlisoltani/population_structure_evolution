@@ -30,9 +30,11 @@ import matplotlib.pyplot as plt
 COMPS = ["3vs4", "3vs5", "4vs5"]
 
 def find_te_q_columns(df, prefix="q_poi_TE_"):
+    """Return TE q-value columns matching the expected prefix."""
     return [c for c in df.columns if c.startswith(prefix)]
 
 def find_te_count_columns(df):
+    """Collect TE count columns while ignoring density features."""
     cols = []
     for c in df.columns:
         if c == "TE_count":
@@ -47,9 +49,11 @@ def find_te_count_columns(df):
     return out
 
 def to_num(arr_like):
+    """Coerce an array-like to numeric values with NaNs for invalid entries."""
     return pd.to_numeric(arr_like, errors="coerce").to_numpy()
 
 def valid_xy(x, y):
+    """Identify valid, non-degenerate observations shared between ``x`` and ``y``."""
     m = np.isfinite(x) & np.isfinite(y)
     n = int(m.sum())
     if n < 3:
@@ -63,6 +67,7 @@ def valid_xy(x, y):
     return m, n, None
 
 def spearman_safe(x, y):
+    """Compute Spearman correlation while guarding against degenerate inputs."""
     m, n, why = valid_xy(x, y)
     if why is not None:
         return np.nan, np.nan, n, why
@@ -105,6 +110,7 @@ def scatter_with_optional_line(x, y, xlab, ylab, title, annot, out_png, xlim=Non
     plt.close()
 
 def compute_q_vs_q(sig_df, comp, te_q_cols, outdir, fst_q_col):
+    """Correlate FST q-values against TE q-values and emit plots/results."""
     rows = []
     plotdir = Path(outdir, "qq_plots"); plotdir.mkdir(parents=True, exist_ok=True)
 
@@ -131,6 +137,7 @@ def compute_q_vs_q(sig_df, comp, te_q_cols, outdir, fst_q_col):
         .to_csv(Path(outdir, f"qq_correlations_{comp}.tsv"), sep="\t", index=False)
 
 def compute_counts(sig_df, comp, te_count_cols, outdir, fst_count_col):
+    """Correlate FST counts against TE counts for significant windows."""
     rows = []
     plotdir = Path(outdir, "count_plots"); plotdir.mkdir(parents=True, exist_ok=True)
 
