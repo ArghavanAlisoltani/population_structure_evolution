@@ -1,4 +1,11 @@
 # Run example in terminal is as below 
+# Rscript -e 'source("fisher_snps_tmrca.R"); fisher_snps_tmrca(
+#  snp_file="~/Desktop/OSU_projects/conifers/LP/ARGweaver/oct_27_2025/snp_annotations/snps_annotated_tmrca_te_mrna.tsv",
+#  outdir  ="~/Desktop/OSU_projects/conifers/LP/ARGweaver/oct_27_2025/fisher_snps_out",
+#  min_class_n=25
+# )'
+
+# also the run example inside R is provided end of the document
 
 # install.packages(c("tidyverse"))
 library(tidyverse)
