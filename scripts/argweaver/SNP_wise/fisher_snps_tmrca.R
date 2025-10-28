@@ -1,3 +1,5 @@
+# Run example in terminal is as below 
+
 # install.packages(c("tidyverse"))
 library(tidyverse)
 
