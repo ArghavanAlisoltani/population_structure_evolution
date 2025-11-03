@@ -2,7 +2,7 @@
 ```
 # run example:
 python tag_gwas_in_sigFST_windows.py \
-Aria_MTAG_summary.txt \
+/Users/aria/Desktop/OSU_projects/conifers/LP/Soms_shared/Aria_MTAG_summary.txt \
 fst_windows_with_TEcounts__augmented.tsv \
 0.05 \
 GWAS_with_FSTwindow_flags.tsv
