@@ -1,7 +1,7 @@
 # save as: tag_gwas_in_sigFST_windows.py
 ```
 # run example:
-python tag_gwas_in_sigFST_windows.py \
+python tag_gwas_in_sigFST_windows_v1.py \
 /Users/aria/Desktop/OSU_projects/conifers/LP/Soms_shared/Aria_MTAG_summary.txt \
 fst_windows_with_TEcounts__augmented.tsv \
 0.05 \
