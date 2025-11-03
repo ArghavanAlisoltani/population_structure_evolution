@@ -1,6 +1,14 @@
 # save as: tag_gwas_in_sigFST_windows.py
-# run:
-# python tag_gwas_in_sigFST_windows.py Aria_MTAG_summary.txt fst_windows_with_TEcounts__augmented.tsv 0.05 GWAS_with_FSTwindow_flags.tsv
+```
+# run example:
+python tag_gwas_in_sigFST_windows.py \
+Aria_MTAG_summary.txt \
+fst_windows_with_TEcounts__augmented.tsv \
+0.05 \
+GWAS_with_FSTwindow_flags.tsv
+
+```
+
 import sys, pandas as pd, numpy as np
 
 gwas_path, wins_path = sys.argv[1], sys.argv[2]
