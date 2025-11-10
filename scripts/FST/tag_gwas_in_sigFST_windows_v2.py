@@ -21,6 +21,17 @@ Outputs:
   <out_prefix>.sigFST_windows_summary_v2.tsv
      - one row per significant window per comparison
      - window boundaries, TE_any, GENE_any, count of GWAS SNPs inside
+
+
+
+Run Example
+
+python tag_gwas_in_sigFST_windows_v2.py \
+  --gwas /Users/aria/Desktop/OSU_projects/conifers/LP/Soms_shared/Aria_MTAG_summary.txt \
+  --wins fst_windows_with_TEcounts__augmented.tsv \ 
+  --q 0.05 \
+  --out_prefix gwas_sigFST_v2 
+  
 """
 
 import argparse
