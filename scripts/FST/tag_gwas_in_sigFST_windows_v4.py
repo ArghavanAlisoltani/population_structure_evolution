@@ -24,6 +24,20 @@ Outputs
 <out_prefix>.sigFST_windows_summary_v2.tsv
 <out_prefix>.GO_enrichment_<comp>.tsv
 <out_prefix>.GO_enrichment_any.tsv
+
+
+Run example
+-------
+python tag_gwas_in_sigFST_windows_v4.py \
+  --gwas /Users/aria/Desktop/OSU_projects/conifers/LP/Soms_shared/Aria_MTAG_summary.txt \
+  --wins fst_windows_with_TEcounts__augmented.tsv \
+  --ann  /Users/aria/Desktop/OSU_projects/conifers/LP/lodgepole_pine_assembly/1ab_mRNA_ID_merged_interproscan.txt \
+  --id_col mrna_id \
+  --go_col ipr_go_terms \
+  --go_sep '|' \
+  --q 0.05 \
+  --out_prefix gwas_sigFST_v4
+
 """
 
 import argparse
