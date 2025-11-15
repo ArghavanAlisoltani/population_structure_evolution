@@ -1,0 +1,15 @@
+insertion_time/split-ctg10.fa.mod.nmtf.pass.list
+insertion_time/split-ctg1.1Gb.fa.mod.nmtf.pass.list
+insertion_time/split-ctg11.fa.mod.nmtf.pass.list
+insertion_time/split-ctg12.fa.mod.nmtf.pass.list
+insertion_time/split-ctg13.fa.mod.nmtf.pass.list
+insertion_time/split-ctg14.fa.mod.nmtf.pass.list
+insertion_time/split-ctg15.fa.mod.nmtf.pass.list
+insertion_time/split-ctg2.fa.mod.nmtf.pass.list
+insertion_time/split-ctg3.fa.mod.nmtf.pass.list
+insertion_time/split-ctg4.fa.mod.nmtf.pass.list
+insertion_time/split-ctg5.fa.mod.nmtf.pass.list
+insertion_time/split-ctg6.fa.mod.nmtf.pass.list
+insertion_time/split-ctg7.fa.mod.nmtf.pass.list
+insertion_time/split-ctg8.fa.mod.nmtf.pass.list
+insertion_time/split-ctg9.fa.mod.nmtf.pass.list
