@@ -1,3 +1,11 @@
+'''
+Run Example
+python summarize_sig_windows_by_chrom.py \
+  -i fst_window_counts_tests_win1000000_ov200000.txt \
+  -o sig_window_counts_by_CHROM.tsv \
+  --q 0.05
+'''
+
 #!/usr/bin/env python3
 import argparse, sys
 import pandas as pd
