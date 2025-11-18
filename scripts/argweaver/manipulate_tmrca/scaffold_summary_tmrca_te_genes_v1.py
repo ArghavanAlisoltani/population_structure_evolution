@@ -1,4 +1,14 @@
 #!/usr/bin/env python3
+'''
+Run example
+python scaffold_summary_tmrca_te_genes.py \
+  --tmrca  "~/Desktop/OSU_projects/conifers/LP/ARGweaver/oct_27_2025/all_tmrca_corrected_position.tsv" \
+  --mrna   "~/Desktop/OSU_projects/conifers/LP/lodgepole_pine_assembly/1ab_mRNA_ID_merged_interproscan.txt" \
+  --te     "~/Desktop/OSU_projects/conifers/LP/lodgepole_pine_assembly/col8_readable.TEanno.cds.scaf1ab.tsv" \
+  --out    "~/Desktop/OSU_projects/conifers/LP/ARGweaver/oct_27_2025/scaffold_summary.tsv"
+
+
+'''
 # -*- coding: utf-8 -*-
 
 import argparse
