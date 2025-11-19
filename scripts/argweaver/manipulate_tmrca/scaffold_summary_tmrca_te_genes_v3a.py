@@ -3,6 +3,16 @@
 
 '''
 Run example
+# (optional) ensure pandas is available
+# python -c "import pandas" || pip install pandas
+
+python ~/Desktop/OSU_projects/conifers/LP/ARGweaver/Nov_18_2025/scaffold_summary_tmrca_te_genes_v3a.py \
+  --tmrca  "$HOME/Desktop/OSU_projects/conifers/LP/ARGweaver/Nov_18_2025/all_tmrca_corrected_position.tsv" \
+  --mrna   "$HOME/Desktop/OSU_projects/conifers/LP/lodgepole_pine_assembly/1ab_mRNA_ID_merged_interproscan.txt" \
+  --te     "$HOME/Desktop/OSU_projects/conifers/LP/lodgepole_pine_assembly/col8_readable.TEanno.cds.scaf1ab.tsv" \
+  --top-percentile 5 \
+  --out    "$HOME/Desktop/OSU_projects/conifers/LP/ARGweaver/Nov_18_2025/scaffold_summary_v3a.tsv"
+
 
 '''
 import argparse, os, re
