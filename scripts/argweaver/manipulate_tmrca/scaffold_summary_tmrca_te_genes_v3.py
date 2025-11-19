@@ -1,6 +1,16 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
+'''
+Run Example
+python scaffold_summary_tmrca_te_genes_v3.py \
+  --tmrca  "$HOME/Desktop/OSU_projects/conifers/LP/ARGweaver/Nov_18_2025/all_tmrca_corrected_position.tsv" \
+  --mrna   "$HOME/Desktop/OSU_projects/conifers/LP/lodgepole_pine_assembly/1ab_mRNA_ID_merged_interproscan.txt" \
+  --te     "$HOME/Desktop/OSU_projects/conifers/LP/lodgepole_pine_assembly/col8_readable.TEanno.cds.scaf1ab.tsv" \
+  --top-percentile 25 \
+  --out    "$HOME/Desktop/OSU_projects/conifers/LP/ARGweaver/Nov_18_2025/scaffold_summary_v3.tsv"
+'''
+
 import argparse, os, re
 from typing import List
 import pandas as pd
