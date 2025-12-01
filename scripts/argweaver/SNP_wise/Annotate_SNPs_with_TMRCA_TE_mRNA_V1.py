@@ -31,7 +31,7 @@ python Annotate_SNPs_with_TMRCA_TE_mRNA_V1.py \
 python Annotate_SNPs_with_TMRCA_TE_mRNA_V1.py \
   --tmrca  "/Users/aria/Desktop/OSU_projects/conifers/LP/ARGweaver/NOV_27_2025/all_tmrca_corrected_position.tsv" \
   --snps   "/Users/aria/Desktop/OSU_projects/conifers/LP/sample_selection/pete_subsampling/subsampling_v2/positions_All_scaffold_poly_s100.txt" \
-  --te     "/Users/aria/Desktop/OSU_projects/conifers/LP/lodgepole_pine_assembly/col8_readable.TEanno.cds.scaf1ab.tsv" \
+  --te     "/Users/aria/Desktop/OSU_projects/conifers/LP/lodgepole_pine_assembly/col8_readable.TEanno.cds.scaf1ab_v0.tsv" \
   --mrna   "/Users/aria/Desktop/OSU_projects/conifers/LP/lodgepole_pine_assembly/1ab_mRNA_ID_merged_interproscan.txt" \
   --te-chrom seqid --te-start start --te-end end --te-class sequence_ontology \
   --top-percentile 5 \
