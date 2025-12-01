@@ -28,7 +28,7 @@ python Annotate_SNPs_with_TMRCA_TE_mRNA_V1.py \
   --out   "/Users/aria/Desktop/OSU_projects/conifers/LP/ARGweaver/oct_27_2025/snp_annotations/snps_annotated_tmrca_te_mrna.tsv"
 
 
-python Annotate_SNPs_with_TMRCA_TE_mRNA_V1.py \
+python 4_Annotate_SNPs_with_TMRCA_TE_mRNA_V1.py \
   --tmrca  "/Users/aria/Desktop/OSU_projects/conifers/LP/ARGweaver/NOV_27_2025/all_tmrca_corrected_position.tsv" \
   --snps   "/Users/aria/Desktop/OSU_projects/conifers/LP/sample_selection/pete_subsampling/subsampling_v2/positions_All_scaffold_poly_s100.txt" \
   --te     "/Users/aria/Desktop/OSU_projects/conifers/LP/lodgepole_pine_assembly/col8_readable.TEanno.cds.scaf1ab_v0.tsv" \
