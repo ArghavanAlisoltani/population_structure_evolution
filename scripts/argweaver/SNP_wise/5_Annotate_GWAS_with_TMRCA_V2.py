@@ -15,7 +15,7 @@ mkdir -p "$outdir"
 
 python 5_Annotate_GWAS_with_TMRCA_V2.py \
   --tmrca  $HOME/Desktop/OSU_projects/conifers/LP/ARGweaver/NOV_27_2025/all_tmrca_corrected_position.tsv \
-  --gwas   $HOME/Desktop/OSU_projects/conifers/LP/Soms_shared/Aria_MTAG_summary.txt \
+  --gwas   $HOME/Desktop/OSU_projects/conifers/LP/Soms_shared/Aria_MTAG_summary_v2.txt \
   --gwas-scaffold-col scaffold \
   --gwas-pos-col position \
   --gwas-trait-col trait \
