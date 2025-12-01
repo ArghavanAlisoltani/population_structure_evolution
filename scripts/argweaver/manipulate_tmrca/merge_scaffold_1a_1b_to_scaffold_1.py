@@ -1,4 +1,15 @@
 #!/usr/bin/env python3
+'''
+Run example
+python merge_scaffold_1a_1b_to_scaffold_1.py \
+  --in all_tmrca_split.tsv \
+  --out all_tmrca_as_scaffold1.tsv \
+  --offset 1427634029 \
+  --scaf1a scaffold_1a --scaf1b scaffold_1b --scaf-out scaffold_1
+
+'''
+
+
 import argparse
 import sys
 import pandas as pd
