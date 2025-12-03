@@ -6,6 +6,18 @@ import pandas as pd
 import matplotlib.pyplot as plt
 from matplotlib import cm
 
+'''
+Run examples
+
+python GWAS_TMRCA_join_and_plots_v2.py \
+  --gwas "/Users/aria/Desktop/OSU_projects/conifers/LP/Soms_shared/MTAG_NOV_2025/To_merge_with_TMRCA_MTAG_SIgnificant_sumstat.txt" \
+  --tmrca "/Users/aria/Desktop/OSU_projects/conifers/LP/ARGweaver/NOV_27_2025/all_tmrca_as_scaffold1.tsv" \
+  --outdir "gwas_MTAG_trait_tmrca_results" \
+  --regline
+
+
+
+'''
 # ------------------------- utils -------------------------
 
 def ensure_dir(p): Path(p).mkdir(parents=True, exist_ok=True)
