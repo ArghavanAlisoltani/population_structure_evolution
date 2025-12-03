@@ -8,6 +8,7 @@ from matplotlib import cm
 
 '''
 Run examples
+cd /Users/aria/Desktop/OSU_projects/conifers/LP/Soms_shared/MTAG_NOV_2025
 
 python GWAS_TMRCA_join_and_plots_v2.py \
   --gwas "/Users/aria/Desktop/OSU_projects/conifers/LP/Soms_shared/MTAG_NOV_2025/To_merge_with_TMRCA_MTAG_SIgnificant_sumstat.txt" \
@@ -15,6 +16,7 @@ python GWAS_TMRCA_join_and_plots_v2.py \
   --outdir "gwas_MTAG_trait_tmrca_results" \
   --regline
 
+cd /Users/aria/Desktop/OSU_projects/conifers/LP/Soms_shared/sumstat_files
 
 python GWAS_TMRCA_join_and_plots_v2.py \
   --gwas "/Users/aria/Desktop/OSU_projects/conifers/LP/Soms_shared/MTAG_NOV_2025/To_merge_with_TMRCA_MTAG_SIgnificant_sumstat.txt" \
