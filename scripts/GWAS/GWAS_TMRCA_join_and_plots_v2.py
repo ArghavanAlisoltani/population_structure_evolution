@@ -21,7 +21,7 @@ cd /Users/aria/Desktop/OSU_projects/conifers/LP/Soms_shared/sumstat_files
 python GWAS_TMRCA_join_and_plots_v2.py \
   --gwas "/Users/aria/Desktop/OSU_projects/conifers/LP/Soms_shared/sumstat_files/combined_pval_maf_hits/combined_hits_full_merge_with_tmrca.txt" \
   --tmrca "/Users/aria/Desktop/OSU_projects/conifers/LP/ARGweaver/NOV_27_2025/all_tmrca_as_scaffold1.tsv" \
-  --outdir "gwas_MTAG_trait_tmrca_results" \
+  --outdir "gwas_single_trait_tmrca_results" \
   --regline
 
 '''
