@@ -18,8 +18,7 @@ python GWAS_TMRCA_join_and_plots_v5.py \
   --allpoints-color "#000000" \
   --regline --show-lm --show-r --show-p \
   --stats-outside --stats-position top \
-  --min-n-trait 5 \
-  --per-trait-stats
+  --min-n-trait 5 
 
 cd /Users/aria/Desktop/OSU_projects/conifers/LP/Soms_shared/sumstat_files
 
@@ -30,8 +29,7 @@ python GWAS_TMRCA_join_and_plots_v5.py \
   --allpoints-color "#000000" \
   --regline --show-lm --show-r --show-p \
   --stats-outside --stats-position top \
-  --min-n-trait 5 \
-  --per-trait-stats
+  --min-n-trait 5 
 '''
 # Optional: Pearson r and p via SciPy if available
 try:
