@@ -4,6 +4,13 @@ from pathlib import Path
 
 import pandas as pd
 
+'''
+run example
+python combine_gwas_hits_pval_maf.py *_sumstat.txt \
+  --p-threshold 1e-6 \
+  --maf-threshold 0.01 \
+  --out-dir combined_pval_maf_hits
+'''
 
 def get_trait_name(filename: str) -> str:
     """
