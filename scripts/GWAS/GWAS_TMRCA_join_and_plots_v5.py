@@ -30,6 +30,7 @@ python GWAS_TMRCA_join_and_plots_v5.py \
   --regline --show-lm --show-r --show-p \
   --stats-outside --stats-position top \
   --min-n-trait 5 
+  
 '''
 # Optional: Pearson r and p via SciPy if available
 try:
