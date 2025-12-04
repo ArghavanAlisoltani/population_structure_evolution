@@ -17,7 +17,7 @@ python GWAS_TMRCA_join_and_plots_v5.py \
   --outdir "gwas_MTAG_trait_tmrca_results_v5" \
   --allpoints-color "#000000" \
   --regline --show-lm --show-r --show-p \
-  --stats-outside --stats-position top \
+  --stats-outside --stats-position right \
   --min-n-trait 5 
 
 cd /Users/aria/Desktop/OSU_projects/conifers/LP/Soms_shared/sumstat_files
