@@ -16,8 +16,8 @@ python GWAS_TMRCA_join_and_plots_v5_1.py \
   --outdir "gwas_MTAG_trait_tmrca_results_v5" \
   --allpoints-color "#000000" \
   --regline --show-lm --show-r --show-p \
-  --stats-outside --stats-position right \
-  --min-n-trait 5 
+  --stats-outside --stats-position top --stats-margin 0.28 \
+  --min-n-trait 5 --per-trait-stats
 
 cd /Users/aria/Desktop/OSU_projects/conifers/LP/Soms_shared/sumstat_files
 
@@ -26,9 +26,9 @@ python GWAS_TMRCA_join_and_plots_v5_1.py \
   --tmrca "/Users/aria/Desktop/OSU_projects/conifers/LP/ARGweaver/NOV_27_2025/all_tmrca_as_scaffold1.tsv" \
   --outdir "gwas_single_trait_tmrca_results_v5" \
   --allpoints-color "#000000" \
-  --regline --show-lm --show-r --show-p \
-  --stats-outside --stats-position top \
-  --min-n-trait 5 
+--regline --show-lm --show-r --show-p \
+  --stats-outside --stats-position top --stats-margin 0.28 \
+  --min-n-trait 5 --per-trait-stats
   
 '''
 # Optional: Pearson r and p via SciPy if available
