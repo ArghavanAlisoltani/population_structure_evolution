@@ -7,7 +7,6 @@ import matplotlib.pyplot as plt
 from matplotlib import cm
 
 
-
 '''
 Run examples
 cd /Users/aria/Desktop/OSU_projects/conifers/LP/Soms_shared/MTAG_NOV_2025
