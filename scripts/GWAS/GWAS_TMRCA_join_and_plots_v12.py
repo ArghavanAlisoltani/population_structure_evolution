@@ -23,7 +23,6 @@ python GWAS_TMRCA_join_and_plots_v12.py \
   --trait-alpha-highlight 0.9 \
   --trait-colors "HT:red,LDECL:orange,C13:green" \
   --stats-traits C13 \         
-  --exclude-traits WWD \
   --stats-trait-xq 50 \
   --stats-trait-yq 98 \
   --tmrca-regfilter 0 \
