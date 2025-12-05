@@ -24,8 +24,8 @@ python GWAS_TMRCA_join_and_plots_v13.py \
   --trait-alpha-highlight 0.9 \
   --trait-colors "HT:red,LDECL:orange,C13:green" \
   --stats-traits C13 \
-  --stats-trait-xq 50 \
-  --stats-trait-yq 98 \
+  --stats-trait-xq 14 \
+  --stats-trait-yq 68 \
   --tmrca-log10
 
 ###two trait highlighted in MTAG
