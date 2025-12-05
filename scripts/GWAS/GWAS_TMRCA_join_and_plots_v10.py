@@ -17,6 +17,7 @@ python GWAS_TMRCA_join_and_plots_v10.py \
   --regline --show-lm --show-r --show-p \
   --stats-outside --stats-panel --stats-position top --stats-panel-height 1.6 \
   --min-n-trait 5 \
+  --exclude-traits WWD \
   --top-percentiles 5,10,25 \
   --highlight-traits C13 \
   --trait-alpha-default 0.2 \
