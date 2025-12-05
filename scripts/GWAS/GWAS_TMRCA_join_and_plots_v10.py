@@ -28,7 +28,25 @@ python GWAS_TMRCA_join_and_plots_v10.py \
   --stats-trait-yq 98 \
   --tmrca-regfilter 0 
 
+###two trait highlighted in MTAG
+python GWAS_TMRCA_join_and_plots_v10.py \
+  --gwas "/Users/aria/Desktop/OSU_projects/conifers/LP/Soms_shared/MTAG_NOV_2025/To_merge_with_TMRCA_MTAG_SIgnificant_sumstat.txt" \
+  --tmrca "/Users/aria/Desktop/OSU_projects/conifers/LP/ARGweaver/NOV_27_2025/all_tmrca_as_scaffold1.tsv" \
+  --outdir "gwas_MTAG_trait_tmrca_results_v10" \
+  --regline --show-lm --show-r --show-p \
+  --stats-outside --stats-panel --stats-position top --stats-panel-height 1.6 \
+  --min-n-trait 5 \
+  --top-percentiles 5,10,25 \
+  --highlight-traits C13 \
+  --trait-alpha-default 1 \
+  --trait-alpha-highlight 1 \
+  --trait-colors "HT:red,LDECL:orange,C13:green" \
+  --stats-traits "C13, LDECL" \
+  --exclude-traits WWD \
+  --stats-trait-xq 60 \
+  --stats-trait-yq 85
 
+### single trait
 
 cd /Users/aria/Desktop/OSU_projects/conifers/LP/Soms_shared/MTAG_NOV_2025
 
