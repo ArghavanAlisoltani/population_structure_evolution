@@ -22,9 +22,8 @@ python GWAS_TMRCA_join_and_plots_v10.py \
   --highlight-traits C13 \
   --trait-alpha-default 0.2 \
   --trait-alpha-highlight 0.9 \
-  --trait-colors "HT:red,LDECL:orange,C13:green" \
-  --stats-traits C13 \
-  --exclude-traits WWD \
+  --trait-colors "HT30:red,LDECL:orange,C13:green" \
+  --stats-traits HT30 \
   --stats-trait-xq 85 \
   --stats-trait-yq 98
 
