@@ -6,6 +6,50 @@ import pandas as pd
 import matplotlib.pyplot as plt
 from matplotlib import cm
 
+'''
+Run examples 
+cd /Users/aria/Desktop/OSU_projects/conifers/LP/Soms_shared/MTAG_NOV_2025
+
+python GWAS_TMRCA_join_and_plots_v9.py \
+  --gwas "/Users/aria/Desktop/OSU_projects/conifers/LP/Soms_shared/MTAG_NOV_2025/To_merge_with_TMRCA_MTAG_SIgnificant_sumstat.txt" \
+  --tmrca "/Users/aria/Desktop/OSU_projects/conifers/LP/ARGweaver/NOV_27_2025/all_tmrca_as_scaffold1.tsv" \
+  --outdir "gwas_MTAG_trait_tmrca_results_v9" \
+  --regline --show-lm --show-r --show-p \
+  --stats-outside --stats-panel --stats-position top --stats-panel-height 1.6 \
+  --min-n-trait 5 \
+  --top-percentiles 5,10,25 \
+  --tmrca-regfilter 0 \
+  --highlight-traits C13 \
+  --trait-alpha-default 0.2 \
+  --trait-alpha-highlight 0.9 \
+  --trait-colors "HT:red,LDECL:orange,C13:greene" \
+  --stats-traits C13 \
+  --exclude-traits WWD \
+  --stats-trait-xq 85 \
+  --stats-trait-yq 98
+
+
+cd /Users/aria/Desktop/OSU_projects/conifers/LP/Soms_shared/MTAG_NOV_2025
+
+python GWAS_TMRCA_join_and_plots_v9.py \
+  --gwas "/Users/aria/Desktop/OSU_projects/conifers/LP/Soms_shared/sumstat_files/combined_pval_maf_hits/combined_hits_full_merge_with_tmrca.txt" \
+  --tmrca "/Users/aria/Desktop/OSU_projects/conifers/LP/ARGweaver/NOV_27_2025/all_tmrca_as_scaffold1.tsv" \
+  --outdir "gwas_single_trait_tmrca_results_v9" \
+  --regline --show-lm --show-r --show-p \
+  --stats-outside --stats-panel --stats-position top --stats-panel-height 1.6 \
+  --min-n-trait 5 \
+  --top-percentiles 5,10,25 \
+  --tmrca-regfilter 0 \
+  --highlight-traits HT \
+  --trait-alpha-default 0.2 \
+  --trait-alpha-highlight 0.9 \
+  --trait-colors "HT:red,LDECL:orange,C13:green" \
+  --stats-traits HT \
+  --exclude-traits WWD \
+  --stats-trait-xq 85 \
+  --stats-trait-yq 98
+
+  '''
 # Optional SciPy for Pearson p-values
 try:
     from scipy import stats as sstats
