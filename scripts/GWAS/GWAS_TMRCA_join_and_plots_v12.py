@@ -7,6 +7,22 @@ import matplotlib.pyplot as plt
 from matplotlib import cm
 
 '''
+#Options
+GWAS_TMRCA_join_and_plots_v12.py [-h] --gwas GWAS --tmrca TMRCA [--outdir OUTDIR] [--trait-col TRAIT_COL]
+                                        [--scaf-col SCAF_COL] [--pos-col POS_COL] [--beta-col BETA_COL]
+                                        [--maf-col MAF_COL] [--fig-w FIG_W] [--fig-h FIG_H] [--regline] [--show-lm]
+                                        [--show-r] [--show-p] [--per-trait-stats] [--stats-outside]
+                                        [--stats-position {top,bottom,right}] [--stats-margin STATS_MARGIN]
+                                        [--stats-panel] [--stats-panel-height STATS_PANEL_HEIGHT]
+                                        [--allpoints-color ALLPOINTS_COLOR] [--min-n-trait MIN_N_TRAIT] [--dpi DPI]
+                                        [--top-percentiles TOP_PERCENTILES] [--tmrca-filter TMRCA_FILTER]
+                                        [--tmrca-regfilter TMRCA_REGFILTER] [--highlight-traits HIGHLIGHT_TRAITS]
+                                        [--trait-alpha-default TRAIT_ALPHA_DEFAULT]
+                                        [--trait-alpha-highlight TRAIT_ALPHA_HIGHLIGHT]
+                                        [--trait-colors TRAIT_COLORS] [--stats-traits STATS_TRAITS]
+                                        [--exclude-traits EXCLUDE_TRAITS] [--stats-trait-xq STATS_TRAIT_XQ]
+                                        [--stats-trait-yq STATS_TRAIT_YQ] [--tmrca-log10]
+                                        
 Run examples 
 cd /Users/aria/Desktop/OSU_projects/conifers/LP/Soms_shared/MTAG_NOV_2025
 
@@ -23,7 +39,7 @@ python GWAS_TMRCA_join_and_plots_v12.py \
   --trait-alpha-highlight 0.9 \
   --trait-colors "HT:red,LDECL:orange,C13:green" \
   --stats-traits C13 \         
-  --tmrca-log10 
+  --tmrca-log10
 
 ###two trait highlighted in MTAG
 python GWAS_TMRCA_join_and_plots_v10.py \
