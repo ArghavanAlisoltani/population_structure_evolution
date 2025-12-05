@@ -26,7 +26,8 @@ python GWAS_TMRCA_join_and_plots_v13.py \
   --stats-traits C13 \         
   --stats-trait-xq 50 \
   --stats-trait-yq 98 \
-  --tmrca-regfilter 0 
+  --tmrca-regfilter 0 \
+  --tmrca-log10
 
 ###two trait highlighted in MTAG
 python GWAS_TMRCA_join_and_plots_v10.py \
@@ -50,10 +51,10 @@ python GWAS_TMRCA_join_and_plots_v10.py \
 
 cd /Users/aria/Desktop/OSU_projects/conifers/LP/Soms_shared/MTAG_NOV_2025
 
-python GWAS_TMRCA_join_and_plots_v10.py \
+python GWAS_TMRCA_join_and_plots_v13.py \
   --gwas "/Users/aria/Desktop/OSU_projects/conifers/LP/Soms_shared/sumstat_files/combined_pval_maf_hits/combined_hits_full_merge_with_tmrca.txt" \
   --tmrca "/Users/aria/Desktop/OSU_projects/conifers/LP/ARGweaver/NOV_27_2025/all_tmrca_as_scaffold1.tsv" \
-  --outdir "gwas_single_trait_tmrca_results_v10_filtered_regression" \
+  --outdir "gwas_single_trait_tmrca_results_v13_filtered_regression" \
   --regline --show-lm --show-r --show-p \
   --stats-outside --stats-panel --stats-position top --stats-panel-height 1.6 \
   --min-n-trait 5 \
@@ -65,7 +66,8 @@ python GWAS_TMRCA_join_and_plots_v10.py \
   --trait-colors "HT30:red,LDECL:orange,C13:green" \
   --stats-traits HT30 \
   --stats-trait-xq 89 \
-  --stats-trait-yq 29
+  --stats-trait-yq 29 \
+  --tmrca-log10
 
   '''
 # Optional SciPy for Pearson p-values
