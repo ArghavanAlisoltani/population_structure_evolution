@@ -6,6 +6,27 @@ import pandas as pd
 import matplotlib.pyplot as plt
 from matplotlib import cm
 
+'''
+python GWAS_TMRCA_join_and_plots_v14.py \
+  --gwas "/Users/aria/Desktop/OSU_projects/conifers/LP/Soms_shared/MTAG_NOV_2025/To_merge_with_TMRCA_MTAG_SIgnificant_sumstat.txt" \
+  --tmrca "/Users/aria/Desktop/OSU_projects/conifers/LP/ARGweaver/NOV_27_2025/all_tmrca_as_scaffold1.tsv" \
+  --outdir "gwas_MTAG_trait_tmrca_results_v14" \
+  --drop-dup-snps \
+  --regline --show-lm --show-r --show-p \
+  --stats-outside --stats-panel --stats-position top --stats-panel-height 1.6 \
+  --min-n-trait 5 \
+  --exclude-traits WWD \
+  --top-percentiles 5,10,25 \
+  --highlight-traits C13 \
+  --trait-alpha-default 0.2 \
+  --trait-alpha-highlight 0.9 \
+  --trait-colors "HT:red,LDECL:orange,C13:green" \
+  --stats-traits C13 \         
+  --stats-trait-xq 50 \
+  --stats-trait-yq 98
+
+
+'''
 # Optional SciPy for Pearson p-values
 try:
     from scipy import stats as sstats
