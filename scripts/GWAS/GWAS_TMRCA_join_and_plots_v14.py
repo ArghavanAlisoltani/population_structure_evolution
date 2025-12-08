@@ -14,7 +14,7 @@ python GWAS_TMRCA_join_and_plots_v14.py \
   --drop-dup-snps \
   --regline --show-lm --show-r --show-p \
   --stats-outside --stats-panel --stats-position top --stats-panel-height 1.6 \
-  --min-n-trait 5 \
+  --min-n-trait 4 \
   --exclude-traits WWD \
   --top-percentiles 5,10,25 \
   --highlight-traits C13 \
