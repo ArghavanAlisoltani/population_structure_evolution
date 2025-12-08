@@ -26,6 +26,28 @@ python GWAS_TMRCA_join_and_plots_v14.py \
   --stats-trait-yq 98
 
 
+### single trait
+
+cd /Users/aria/Desktop/OSU_projects/conifers/LP/Soms_shared/MTAG_NOV_2025
+
+python GWAS_TMRCA_join_and_plots_v14.py \
+  --gwas "/Users/aria/Desktop/OSU_projects/conifers/LP/Soms_shared/sumstat_files/combined_pval_maf_hits/combined_hits_full_merge_with_tmrca.txt" \
+  --tmrca "/Users/aria/Desktop/OSU_projects/conifers/LP/ARGweaver/NOV_27_2025/all_tmrca_as_scaffold1.tsv" \
+  --outdir "gwas_single_trait_tmrca_results_v14_filtered_regression" \
+  --regline --show-lm --show-r --show-p \
+  --stats-outside --stats-panel --stats-position top --stats-panel-height 1.6 \
+  --min-n-trait 5 \
+  --top-percentiles 5,10,25 \
+  --tmrca-regfilter 0 \    
+  --highlight-traits HT30 \  
+  --trait-alpha-default 0.4 \
+  --trait-alpha-highlight 1 \                       
+  --trait-colors "HT30:red,LDECL:orange,C13:green" \
+  --stats-traits HT30 \
+  --stats-trait-xq 89 \
+  --stats-trait-yq 29 \
+  --drop-dup-snps
+
 '''
 # Optional SciPy for Pearson p-values
 try:
