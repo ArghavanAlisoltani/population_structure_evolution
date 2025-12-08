@@ -38,7 +38,6 @@ python GWAS_TMRCA_join_and_plots_v14.py \
   --stats-outside --stats-panel --stats-position top --stats-panel-height 1.6 \
   --min-n-trait 5 \
   --top-percentiles 5,10,25 \
-  --tmrca-regfilter 0 \
   --highlight-traits HT30 \
   --trait-alpha-default 0.4 \
   --trait-alpha-highlight 1 \
