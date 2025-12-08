@@ -21,7 +21,7 @@ python GWAS_TMRCA_join_and_plots_v14.py \
   --trait-alpha-default 0.2 \
   --trait-alpha-highlight 0.9 \
   --trait-colors "HT:red,LDECL:orange,C13:green" \
-  --stats-traits C13 \         
+  --stats-traits C13 \
   --stats-trait-xq 50 \
   --stats-trait-yq 98
 
@@ -38,8 +38,8 @@ python GWAS_TMRCA_join_and_plots_v14.py \
   --stats-outside --stats-panel --stats-position top --stats-panel-height 1.6 \
   --min-n-trait 5 \
   --top-percentiles 5,10,25 \
-  --tmrca-regfilter 0 \    
-  --highlight-traits HT30 \  
+  --tmrca-regfilter 0 \
+  --highlight-traits HT30 \
   --trait-alpha-default 0.4 \
   --trait-alpha-highlight 1 \                       
   --trait-colors "HT30:red,LDECL:orange,C13:green" \
@@ -47,7 +47,7 @@ python GWAS_TMRCA_join_and_plots_v14.py \
   --stats-trait-xq 89 \
   --stats-trait-yq 29 \
   --drop-dup-snps
-
+  
 '''
 # Optional SciPy for Pearson p-values
 try:
