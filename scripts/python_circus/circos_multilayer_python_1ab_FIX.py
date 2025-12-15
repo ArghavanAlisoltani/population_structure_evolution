@@ -1,0 +1,638 @@
+# circos_multilayer_python_1ab_FIX.py
+# Multi-layer Circos (Python) with robust I/O, scaffold_1a/1b merge/split, LG mapping,
+# and SAFE handling of meta columns during interval splitting (fixes length-mismatch error).
+
+import re
+import math
+from pathlib import Path
+import numpy as np
+import pandas as pd
+import matplotlib.pyplot as plt
+from matplotlib.colors import LinearSegmentedColormap, Normalize
+from pycirclize import Circos
+
+# ===============================
+# CONFIG: set your file paths
+# ===============================
+DATA = {
+    "tmrca":      "all_tmrca_corrected_position.tsv",   # CHROM start_tmrca end_tmrca mean_tmrca Low_CI UP_CI
+    "snp":        "positions_All_scaffold_poly_s100.txt",  # CHROM POS
+    "te":         "col8_readable.TEanno.cds.scaf1ab.tsv",  # seqid sequence_ontology start end ...
+    "mrna":       "1ab_mRNA_ID_merged_interproscan.txt",   # new_seqid new_start new_end (or gff_* fallback)
+    "gwas_orig":  "combined_hits_fdr_0.1_MAF_0.01.tsv",    # scaffold position trait
+    "trait_gwas": "FC_sumstat.txt",                        # any *_sumstat.txt with SNP/CHR/BP/.../fdr
+    "lg_map":     "canLG.v1_Aria_version.txt",             # Candidate_LG_ID Scaffold_ID Strand Scaffold_length
+}
+
+# 1a/1b split constants (your pipeline)
+CHR1, CHR1A, CHR1B = "scaffold_1", "scaffold_1a", "scaffold_1b"
+GAP_END  = 1418382258.0  # last base of 1a (global)
+OFFSET   = 1427634029.0  # first base of 1b (global)
+
+# Track toggles / parameters
+SHOW_SNP_DENSITY = True
+SNP_WINDOW_BP    = 1_000_000  # 1 Mb windows
+
+SHOW_TE          = True
+TE_MAJOR_TO_SHOW = {"LTR", "DNA", "Helitron", "LINE", "SINE"}   # only these majors
+# LTR subclusters visualized as Gypsy / Copia
+TE_COLORS = {
+    "LTR:Gypsy":  "#1b9e77",
+    "LTR:Copia":  "#d95f02",
+    "DNA":        "#7570b3",
+    "Helitron":   "#e7298a",
+    "LINE":       "#66a61e",
+    "SINE":       "#e6ab02",
+}
+SHOW_MRNA        = False
+
+SHOW_TMRCA       = True
+TMRCA_WIN_BP     = 500_000
+TMRCA_STEP_BP    = None  # None -> WIN/5
+TMRCA_OFFSET_BP  = 1.0
+
+SHOW_TRAIT_GWAS  = True      # scatter of -log10(FDR)
+FDR_CUTOFF       = 0.10
+MAF_CUTOFF       = 0.01
+TRAIT_POINT_SIZE = 4.0
+
+SHOW_ORIG_GWAS   = True      # red dots (baseline GWAS hits)
+ORIG_GWAS_SIZE   = 2.5
+
+# Output
+OUT_JPEG = "circos_multilayer_python_1ab.jpg"
+OUT_PDF  = "circos_multilayer_python_1ab.pdf"
+DPI      = 300
+FIG_W, FIG_H = 10, 10
+
+# ===============================
+# Helpers: safe load & normalization
+# ===============================
+def load_tsv(path: str) -> pd.DataFrame | None:
+    p = Path(path)
+    if not p.exists():
+        return None
+    return pd.read_csv(p, sep="\t", dtype=str, low_memory=False)
+
+def normalize_scaffold_val(x: str) -> str:
+    """Return a canonical scaffold name like 'scaffold_1', 'scaffold_1a'."""
+    if pd.isna(x):
+        return np.nan
+    s = str(x).strip()
+    s_low = s.lower()
+
+    # From SNP ID like SSCAFFOLD_4_983057685 -> scaffold_4
+    m = re.match(r"^s{0,2}scaffold_([0-9]+[ab]?)(_.*)?$", s_low)
+    if m:
+        return f"scaffold_{m.group(1)}"
+
+    # Already scaffold_N or scaffold_Na/b
+    if re.match(r"^scaffold_[0-9]+[ab]?$", s_low):
+        return s_low
+
+    # "chrN" or "N" with optional a/b
+    m = re.match(r"^chr?([0-9]+[ab]?)$", s_low)
+    if m:
+        return f"scaffold_{m.group(1)}"
+
+    # Pure integer-like  "1", "2a", etc.
+    if re.match(r"^[0-9]+[ab]?$", s_low):
+        return f"scaffold_{s_low}"
+
+    return s_low
+
+def parse_te_major_sub(s: str) -> tuple[str|None, str|None]:
+    """Return (major, sub) where major ∈ {LTR,DNA,Helitron,LINE,SINE}, sub for LTR∈{Gypsy,Copia}."""
+    if pd.isna(s):
+        return (None, None)
+    t = s.lower()
+    # majors
+    if "helitron" in t:
+        return ("Helitron", "Helitron")
+    if "line" in t:
+        return ("LINE", "LINE")
+    if "sine" in t:
+        return ("SINE", "SINE")
+    if re.search(r"(^|[^a-z])(dna|tir|hat|tc.?mar|mutator|cacta|enspm|harbinger|mariner|pogo)", t):
+        return ("DNA", "DNA")
+    if "ltr" in t:
+        if ("gypsy" in t) or ("ty3" in t):
+            return ("LTR", "Gypsy")
+        if ("copia" in t) or ("ty1" in t):
+            return ("LTR", "Copia")
+        return ("LTR", None)
+    return (None, None)
+
+# ===============================
+# Robust loaders (standardize to CHROM, POS / START, END / mean, lo, hi ...)
+# ===============================
+def load_tmrca_std(path: str) -> pd.DataFrame | None:
+    df = load_tsv(path)
+    if df is None: return None
+    req = ["CHROM","start_tmrca","end_tmrca","mean_tmrca","Low_CI","UP_CI"]
+    if not set(req).issubset(df.columns):
+        raise ValueError("TMRCA file missing required columns: " + ", ".join(set(req) - set(df.columns)))
+    out = pd.DataFrame({
+        "CHROM": df["CHROM"].map(normalize_scaffold_val),
+        "START": pd.to_numeric(df["start_tmrca"], errors="coerce") + TMRCA_OFFSET_BP,
+        "END":   pd.to_numeric(df["end_tmrca"],   errors="coerce") + TMRCA_OFFSET_BP,
+        "mean":  pd.to_numeric(df["mean_tmrca"],  errors="coerce"),
+        "lo":    pd.to_numeric(df["Low_CI"],      errors="coerce"),
+        "hi":    pd.to_numeric(df["UP_CI"],       errors="coerce"),
+    }).dropna(subset=["CHROM","START","END"])
+    out = out[out["END"] >= out["START"]]
+    return out
+
+def load_snp_std(path: str) -> pd.DataFrame | None:
+    df = load_tsv(path)
+    if df is None: return None
+    cols = {c.lower(): c for c in df.columns}
+    chrom_col = next((cols.get(k) for k in ["chrom","chr","scaffold"]), None)
+    pos_col   = next((cols.get(k) for k in ["pos","bp","position"]), None)
+    if not chrom_col or not pos_col:
+        raise ValueError("SNP file must have CHROM/CHR/scaffold and POS/BP/position.")
+    return pd.DataFrame({
+        "CHROM": df[chrom_col].map(normalize_scaffold_val),
+        "POS":   pd.to_numeric(df[pos_col], errors="coerce"),
+    }).dropna(subset=["CHROM","POS"])
+
+def load_te_std(path: str) -> pd.DataFrame | None:
+    df = load_tsv(path)
+    if df is None: return None
+    cols = {c.lower(): c for c in df.columns}
+    chr_col = next((cols.get(k) for k in ["seqid","scaffold","chrom","chr","gff_seqid"]), None)
+    st_col  = next((cols.get(k) for k in ["start","gff_start"]), None)
+    en_col  = next((cols.get(k) for k in ["end","gff_end"]), None)
+    cls_col = next((cols.get(k) for k in ["sequence_ontology","class","te_class","superfamily"]), None)
+    if not chr_col or not st_col or not en_col:
+        raise ValueError("TE file must include scaffold/seqid and start/end columns.")
+    out = pd.DataFrame({
+        "CHROM": df[chr_col].map(normalize_scaffold_val),
+        "START": pd.to_numeric(df[st_col], errors="coerce"),
+        "END":   pd.to_numeric(df[en_col], errors="coerce"),
+        "CLS":   df[cls_col] if cls_col else None
+    }).dropna(subset=["CHROM","START","END"])
+    out = out[out["END"] >= out["START"]]
+    major, sub = [], []
+    for val in (out["CLS"] if "CLS" in out.columns else [None]*len(out)):
+        M,S = parse_te_major_sub(val)
+        major.append(M); sub.append(S)
+    out["MAJOR"] = major
+    out["SUB"]   = sub
+    return out
+
+def load_mrna_std(path: str) -> pd.DataFrame | None:
+    df = load_tsv(path)
+    if df is None: return None
+    cols = {c.lower(): c for c in df.columns}
+    chr_col = next((cols.get(k) for k in ["new_seqid","gff_seqid","seqid","chrom","scaffold"]), None)
+    st_col  = next((cols.get(k) for k in ["new_start","gff_start","start"]), None)
+    en_col  = next((cols.get(k) for k in ["new_end","gff_end","end"]), None)
+    if not chr_col or not st_col or not en_col:
+        raise ValueError("mRNA file must have new_seqid/new_start/new_end (or gff_* fallback).")
+    out = pd.DataFrame({
+        "CHROM": df[chr_col].map(normalize_scaffold_val),
+        "START": pd.to_numeric(df[st_col], errors="coerce"),
+        "END":   pd.to_numeric(df[en_col], errors="coerce"),
+    }).dropna(subset=["CHROM","START","END"])
+    out = out[out["END"] >= out["START"]]
+    return out
+
+def load_gwas_orig_std(path: str) -> pd.DataFrame | None:
+    df = load_tsv(path)
+    if df is None: return None
+    cols = {c.lower(): c for c in df.columns}
+    sc_col  = next((cols.get(k) for k in ["scaffold","chr","chrom"]), None)
+    pos_col = next((cols.get(k) for k in ["position","pos","bp"]), None)
+    tr_col  = next((cols.get(k) for k in ["trait"]), None)
+    if not sc_col or not pos_col:
+        raise ValueError("Original GWAS must include scaffold/CHR and position/POS/BP.")
+    out = pd.DataFrame({
+        "CHROM": df[sc_col].map(normalize_scaffold_val),
+        "POS":   pd.to_numeric(df[pos_col], errors="coerce"),
+        "TRAIT": df[tr_col] if tr_col else ""
+    }).dropna(subset=["CHROM","POS"])
+    return out
+
+def load_trait_gwas_std(path: str, trait_name: str | None = None) -> pd.DataFrame | None:
+    df = load_tsv(path)
+    if df is None: return None
+    low = {c.lower(): c for c in df.columns}
+    # Scaffold from explicit column or parse from SNP
+    sc = None
+    if "scaffold" in low:
+        sc = df[low["scaffold"]]
+    elif "chr" in low:
+        sc = df[low["chr"]]
+    elif "chrom" in low:
+        sc = df[low["chrom"]]
+    elif "snp" in low:
+        snp = df[low["snp"]].astype(str).str.lower()
+        sc = snp.str.replace(r"^s{0,2}scaffold_([0-9]+[ab]?)(_.*)?$", r"scaffold_\1", regex=True)
+    if sc is None:
+        raise ValueError("Trait GWAS must contain scaffold/chr/chrom or snp.")
+    pos_col = low.get("bp") or low.get("pos") or low.get("position")
+    if not pos_col:
+        raise ValueError("Trait GWAS must contain BP/POS/position column.")
+    fdr_col = low.get("fdr") or low.get("p")
+    if not fdr_col:
+        raise ValueError("Trait GWAS must contain 'fdr' or 'p'.")
+    maf_col = low.get("maf")
+
+    out = pd.DataFrame({
+        "CHROM": pd.Series(sc).map(normalize_scaffold_val),
+        "POS":   pd.to_numeric(df[pos_col], errors="coerce"),
+        "FDR":   pd.to_numeric(df[fdr_col], errors="coerce"),
+        "MAF":   pd.to_numeric(df[maf_col], errors="coerce") if maf_col else np.nan,
+        "TRAIT": trait_name or Path(path).name
+    }).dropna(subset=["CHROM","POS","FDR"])
+    # clamp FDR
+    out["FDR"] = out["FDR"].clip(lower=np.finfo(float).tiny, upper=1.0)
+    return out
+
+def load_lg_map(path: str) -> pd.DataFrame:
+    # Expect tab file with Candidate_LG_ID, Scaffold_ID, Strand, Scaffold_length
+    df = pd.read_csv(path, sep="\t", dtype=str)
+    for col in ["Candidate_LG_ID","Scaffold_ID","Strand","Scaffold_length"]:
+        if col not in df.columns:
+            raise ValueError("LG map missing required columns.")
+    out = pd.DataFrame({
+        "LG":      df["Candidate_LG_ID"].astype(str),
+        "CHROM":   df["Scaffold_ID"].map(normalize_scaffold_val),
+        "Strand":  df["Strand"].astype(str),
+        "length":  pd.to_numeric(df["Scaffold_length"], errors="coerce"),
+    })
+    out = out.dropna(subset=["CHROM","length"])
+    # compute cumulative offsets per LG in file order (assumed physical order)
+    out["order_in_LG"] = out.groupby("LG").cumcount() + 1
+    out = out.sort_values(["LG","order_in_LG"])
+    out["lg_scaf_start"] = out.groupby("LG")["length"].cumsum().shift(fill_value=0)
+    out["lg_scaf_end"]   = out["lg_scaf_start"] + out["length"]
+    return out
+
+# ===============================
+# 1a/1b merge/split helpers
+# ===============================
+def merge_1ab_points(df: pd.DataFrame) -> pd.DataFrame:
+    """Input standardized points (CHROM, POS). Return merged 'scaffold_1' with 1b shifted by OFFSET-1."""
+    df = df.copy()
+    orig_chrom = df["CHROM"].astype(str)
+    df["POS"] = np.where(orig_chrom == CHR1B, df["POS"].astype(float) + (OFFSET - 1.0), df["POS"])
+    df["CHROM"] = np.where(orig_chrom.isin([CHR1A, CHR1B, CHR1]), CHR1, orig_chrom)
+    return df
+
+def split_1_to_1ab_points(df: pd.DataFrame) -> pd.DataFrame:
+    """From merged 'scaffold_1' points, split back into 1a/1b coords for LG mapping; drop gap."""
+    rows = []
+    for _, r in df.iterrows():
+        c, p = r["CHROM"], float(r["POS"])
+        if c == CHR1:
+            if p <= GAP_END:
+                rows.append((CHR1A, p))
+            elif p >= OFFSET:
+                rows.append((CHR1B, p - OFFSET + 1.0))
+            else:
+                pass
+        else:
+            rows.append((c, p))
+    return pd.DataFrame(rows, columns=["CHROM","POS"])
+
+# ---------- NEW: interval mapping that PRESERVES META (fix) ----------
+def map_intervals_to_LG_with_meta(df_intervals: pd.DataFrame, scaff_info: pd.DataFrame, meta_cols=None) -> pd.DataFrame:
+    """
+    Map intervals to LG coords and KEEP meta columns, safely replicating rows
+    if an interval on scaffold_1 splits into 1a and 1b fragments.
+    Input df must have CHROM, START, END (+ optional meta columns).
+    Returns: LG, pseudo_start, pseudo_end + meta columns.
+    """
+    if df_intervals is None or df_intervals.empty:
+        cols = ["LG","pseudo_start","pseudo_end"] + (meta_cols or [])
+        return pd.DataFrame(columns=cols)
+
+    if meta_cols is None:
+        meta_cols = []
+
+    df = df_intervals.copy()
+    # Normalize types
+    df["CHROM"] = df["CHROM"].map(normalize_scaffold_val)
+    df["START"] = pd.to_numeric(df["START"], errors="coerce")
+    df["END"]   = pd.to_numeric(df["END"],   errors="coerce")
+    df = df.dropna(subset=["CHROM","START","END"])
+    df = df[df["END"] >= df["START"]]
+
+    # Split scaffold_1 into 1a/1b fragments while preserving meta
+    out_rows = []
+    for _, r in df.iterrows():
+        c, s, e = str(r["CHROM"]), float(r["START"]), float(r["END"])
+        meta = {k: r[k] for k in meta_cols if k in r}
+
+        if c == CHR1:
+            # part in 1a
+            sa, ea = max(s, 1.0), min(e, GAP_END)
+            if ea >= sa:
+                row = {"CHROM": CHR1A, "START": sa, "END": ea}
+                row.update(meta)
+                out_rows.append(row)
+            # part in 1b
+            sb, eb = max(s, OFFSET), e
+            if eb >= sb:
+                row = {"CHROM": CHR1B, "START": sb - OFFSET + 1.0, "END": eb - OFFSET + 1.0}
+                row.update(meta)
+                out_rows.append(row)
+        else:
+            row = {"CHROM": c, "START": s, "END": e}
+            row.update(meta)
+            out_rows.append(row)
+
+    if not out_rows:
+        cols = ["LG","pseudo_start","pseudo_end"] + meta_cols
+        return pd.DataFrame(columns=cols)
+
+    ab = pd.DataFrame(out_rows)
+
+    m = ab.merge(scaff_info, on="CHROM", how="inner")
+    if m.empty:
+        cols = ["LG","pseudo_start","pseudo_end"] + meta_cols
+        return pd.DataFrame(columns=cols)
+
+    ps = np.where(
+        m["Strand"] == "+",
+        m["lg_scaf_start"] + m["START"].astype(float),
+        m["lg_scaf_start"] + (m["length"].astype(float) - m["END"].astype(float) + 1.0),
+    )
+    pe = np.where(
+        m["Strand"] == "+",
+        m["lg_scaf_start"] + m["END"].astype(float),
+        m["lg_scaf_start"] + (m["length"].astype(float) - m["START"].astype(float) + 1.0),
+    )
+    ps, pe = np.minimum(ps, pe), np.maximum(ps, pe)
+
+    out = pd.DataFrame({
+        "LG": m["LG"].astype(str),
+        "pseudo_start": ps,
+        "pseudo_end": pe,
+    })
+    for k in meta_cols:
+        out[k] = m[k].values
+    return out
+
+# Points → LG
+def map_points_to_LG(df_points_std: pd.DataFrame, scaff_info: pd.DataFrame) -> pd.DataFrame:
+    if df_points_std is None or df_points_std.empty:
+        return pd.DataFrame(columns=["LG","pseudo_pos"])
+    merged = merge_1ab_points(df_points_std[["CHROM","POS"]])
+    ab = split_1_to_1ab_points(merged)
+    m = ab.merge(scaff_info, on="CHROM", how="inner")
+    pseudo = np.where(
+        m["Strand"] == "+",
+        m["lg_scaf_start"] + m["POS"].astype(float),
+        m["lg_scaf_start"] + (m["length"].astype(float) - m["POS"].astype(float) + 1.0),
+    )
+    return pd.DataFrame({"LG": m["LG"].astype(str), "pseudo_pos": pseudo})
+
+# ===============================
+# Windows & smoothing
+# ===============================
+def build_snp_windows_LG(snp_std: pd.DataFrame, scaff_info: pd.DataFrame, window_size=1_000_000) -> pd.DataFrame:
+    pts = map_points_to_LG(snp_std, scaff_info)
+    if pts.empty:
+        return pd.DataFrame(columns=["LG","start","end","n_snps"])
+    lg_lengths = scaff_info.groupby("LG", as_index=False)["lg_scaf_end"].max().rename(columns={"lg_scaf_end":"lg_length"})
+    # count per window
+    rows = []
+    for lg, sub in pts.groupby("LG"):
+        L = float(lg_lengths.loc[lg_lengths["LG"]==lg, "lg_length"].values[0])
+        idx = np.floor(pts.loc[sub.index, "pseudo_pos"].values / window_size).astype(int)
+        unique, counts = np.unique(idx, return_counts=True)
+        nwin = int(math.floor(L / window_size) + 1)
+        for w in range(nwin):
+            start = w * window_size
+            end   = min((w+1)*window_size, L)
+            n = int(counts[unique==w][0]) if w in unique else 0
+            rows.append((lg, start, end, n))
+    return pd.DataFrame(rows, columns=["LG","start","end","n_snps"])
+
+def smooth_tmrca_LG(tm_std: pd.DataFrame, scaff_info: pd.DataFrame, win_bp=500_000, step_bp=None) -> pd.DataFrame:
+    if tm_std is None or tm_std.empty:
+        return pd.DataFrame(columns=["LG","win_start","win_end","mid","mean_s","lo_s","hi_s"])
+    if step_bp is None:
+        step_bp = max(1, int(win_bp//5))
+    # Map segments to LG (with mean/lo/hi carried)
+    segs = tm_std.copy()
+    segs_map = map_intervals_to_LG_with_meta(segs[["CHROM","START","END","mean","lo","hi"]], scaff_info, meta_cols=["mean","lo","hi"])
+    if segs_map.empty:
+        return pd.DataFrame(columns=["LG","win_start","win_end","mid","mean_s","lo_s","hi_s"])
+    # LG lengths
+    lg_lengths = scaff_info.groupby("LG", as_index=False)["lg_scaf_end"].max().rename(columns={"lg_scaf_end":"lg_length"})
+    out = []
+    for lg, g in segs_map.groupby("LG"):
+        L = float(lg_lengths.loc[lg_lengths["LG"]==lg, "lg_length"].values[0])
+        starts = np.arange(0, max(0, L - win_bp + 1), step_bp, dtype=float)
+        ends   = np.minimum(starts + win_bp, L)
+        s = g["pseudo_start"].values.astype(float)
+        e = g["pseudo_end"].values.astype(float)
+        mn = g["mean"].values.astype(float)
+        lo = g["lo"].values.astype(float)
+        hi = g["hi"].values.astype(float)
+        for ws, we in zip(starts, ends):
+            ol = np.minimum(we, e) - np.maximum(ws, s)
+            mask = ol > 0
+            if not np.any(mask):
+                continue
+            w = ol[mask]
+            mean_s = np.sum(mn[mask] * w) / np.sum(w)
+            lo_s   = np.sum(lo[mask] * w) / np.sum(w)
+            hi_s   = np.sum(hi[mask] * w) / np.sum(w)
+            out.append((lg, ws, we, (ws+we)/2.0, mean_s, lo_s, hi_s))
+    return pd.DataFrame(out, columns=["LG","win_start","win_end","mid","mean_s","lo_s","hi_s"])
+
+# ===============================
+# Load all inputs
+# ===============================
+tmrca_df   = load_tmrca_std(DATA["tmrca"])
+snp_df     = load_snp_std(DATA["snp"])
+te_df      = load_te_std(DATA["te"])
+mrna_df    = load_mrna_std(DATA["mrna"])
+gwas_orig  = load_gwas_orig_std(DATA["gwas_orig"])
+trait_df   = load_trait_gwas_std(DATA["trait_gwas"])
+scaff_info = load_lg_map(DATA["lg_map"])
+
+if tmrca_df is None or snp_df is None or scaff_info is None or tmrca_df.empty or snp_df.empty or scaff_info.empty:
+    raise SystemExit("Required files missing or empty (TMRCA, SNP, LG map).")
+
+# LG sizes & order
+lg_lengths = scaff_info.groupby("LG", as_index=False)["lg_scaf_end"].max().rename(columns={"lg_scaf_end":"lg_length"})
+lg_order = lg_lengths["LG"].astype(str).tolist()
+sectors = {lg: float(L) for lg, L in zip(lg_lengths["LG"], lg_lengths["lg_length"])}
+
+# Precompute plotting inputs per layer
+# 1) SNP density windows
+snp_win = build_snp_windows_LG(snp_df, scaff_info, window_size=SNP_WINDOW_BP) if SHOW_SNP_DENSITY else pd.DataFrame()
+
+# 2) TE map (major classes only; LTR subclusters)
+te_map = pd.DataFrame()
+present_te_labels = set()
+if SHOW_TE and te_df is not None and not te_df.empty:
+    te_keep = te_df.copy()
+    te_keep = te_keep[te_keep["MAJOR"].isin(TE_MAJOR_TO_SHOW)]
+    te_keep["DISPLAY"] = np.where(
+        (te_keep["MAJOR"]=="LTR") & (te_keep["SUB"].isin(["Gypsy","Copia"])),
+        te_keep["MAJOR"] + ":" + te_keep["SUB"],
+        te_keep["MAJOR"]
+    )
+    te_keep = te_keep.dropna(subset=["DISPLAY"])
+    if not te_keep.empty:
+        # --- FIX: map intervals carrying DISPLAY safely ---
+        te_map = map_intervals_to_LG_with_meta(
+            te_keep[["CHROM","START","END","DISPLAY"]], scaff_info, meta_cols=["DISPLAY"]
+        )
+        present_te_labels = set(te_map["DISPLAY"].unique().tolist())
+
+# 3) mRNA intervals
+mrna_map = pd.DataFrame()
+if SHOW_MRNA and mrna_df is not None and not mrna_df.empty:
+    mrna_map = map_intervals_to_LG_with_meta(mrna_df[["CHROM","START","END"]], scaff_info, meta_cols=[])
+
+# 4) TMRCA smoothing
+tm_smooth = smooth_tmrca_LG(tmrca_df, scaff_info, win_bp=TMRCA_WIN_BP, step_bp=TMRCA_STEP_BP) if SHOW_TMRCA else pd.DataFrame()
+
+# 5) Trait GWAS (FDR, MAF filter)
+trait_map = pd.DataFrame()
+if SHOW_TRAIT_GWAS and trait_df is not None and not trait_df.empty:
+    td = trait_df.copy()
+    td = td[(td["MAF"].isna()) | (td["MAF"] >= MAF_CUTOFF)]
+    pts = merge_1ab_points(td[["CHROM","POS"]])
+    pts = split_1_to_1ab_points(pts)
+    m = pts.merge(scaff_info, on="CHROM", how="inner")
+    ppos = np.where(
+        m["Strand"] == "+",
+        m["lg_scaf_start"] + m["POS"].astype(float),
+        m["lg_scaf_start"] + (m["length"].astype(float) - m["POS"].astype(float) + 1.0)
+    )
+    trait_map = pd.DataFrame({
+        "LG": m["LG"].astype(str),
+        "pseudo_pos": ppos,
+        "FDR": td.loc[pts.index, "FDR"].to_numpy(),
+    })
+
+# 6) Original GWAS baseline hits
+orig_map = pd.DataFrame()
+if SHOW_ORIG_GWAS and gwas_orig is not None and not gwas_orig.empty:
+    orig_map = map_points_to_LG(gwas_orig[["CHROM","POS"]], scaff_info)
+
+# ===============================
+# Build Circos and draw all tracks
+# ===============================
+circos = Circos(sectors, space=4)  # 4-degree gaps between LGs
+
+# Outer axis & labels
+for sector in circos.sectors:
+    sector.axis(fc="none", ec="black", lw=1.0, alpha=0.6)
+    sector.text(f"LG{sector.name}", r=105, size=10)
+
+# 1) SNP density heatmap-like rectangles
+if SHOW_SNP_DENSITY and not snp_win.empty:
+    max_n = max(1, int(snp_win["n_snps"].max()))
+    cmap = LinearSegmentedColormap.from_list("snp_heat",
+        ["#ffffff","#006400","#ffa500","#ff8c00","#ff0000","#8b0000"], N=256)
+    norm = Normalize(vmin=0, vmax=max_n)
+    for lg in lg_order:
+        lg_sub = snp_win[snp_win["LG"] == lg]
+        if lg_sub.empty: continue
+        tr = circos.sectors[lg].add_track((80, 90))  # radial band
+        tr.axis()
+        for _, row in lg_sub.iterrows():
+            x1, x2 = float(row["start"]), float(row["end"])
+            color = cmap(norm(int(row["n_snps"])))
+            tr.rect(x1, x2, ec=None, color=color)
+
+# 2) TE track (rectangles by DISPLAY)
+if SHOW_TE and not te_map.empty:
+    for lg in lg_order:
+        lg_sub = te_map[te_map["LG"] == lg]
+        if lg_sub.empty: continue
+        tr = circos.sectors[lg].add_track((75, 80))
+        tr.axis()
+        for _, row in lg_sub.iterrows():
+            x1, x2 = float(row["pseudo_start"]), float(row["pseudo_end"])
+            disp = str(row["DISPLAY"])
+            color = TE_COLORS.get(disp, "#999999")
+            tr.rect(x1, x2, ec=None, color=color)
+
+# 3) mRNA track (uniform pink)
+if SHOW_MRNA and not mrna_map.empty:
+    for lg in lg_order:
+        lg_sub = mrna_map[mrna_map["LG"] == lg]
+        if lg_sub.empty: continue
+        tr = circos.sectors[lg].add_track((70, 75))
+        tr.axis()
+        for _, row in lg_sub.iterrows():
+            tr.rect(float(row["pseudo_start"]), float(row["pseudo_end"]), ec=None, color="#F17CB0")
+
+# 4) TMRCA (CI ribbon + mean line)
+if SHOW_TMRCA and not tm_smooth.empty:
+    for lg in lg_order:
+        sub = tm_smooth[tm_smooth["LG"] == lg]
+        if sub.empty: continue
+        ylo = float(np.nanmin(sub[["lo_s","hi_s"]].values))
+        yhi = float(np.nanmax(sub[["lo_s","hi_s"]].values))
+        if not np.isfinite(ylo) or ylo == yhi:
+            ylo, yhi = 1e-6, 10.0
+        tr = circos.sectors[lg].add_track((55, 70), r_pad_ratio=0.05)
+        tr.axis()
+        x = sub["mid"].values.astype(float)
+        lo = sub["lo_s"].values.astype(float)
+        hi = sub["hi_s"].values.astype(float)
+        mn = sub["mean_s"].values.astype(float)
+        tr.fill_between(x, lo, y2=hi, fc="#9ecae1", ec="none", alpha=0.35)
+        tr.line(x, mn, color="#08519c", lw=1.8)
+
+# 5) Trait GWAS: -log10(FDR) points with alpha by threshold
+if SHOW_TRAIT_GWAS and not trait_map.empty:
+    trait_map = trait_map.copy()
+    trait_map["neglog10"] = -np.log10(trait_map["FDR"].astype(float))
+    ymax = float(np.nanmax(trait_map["neglog10"].values))
+    if not np.isfinite(ymax) or ymax <= 0: ymax = 1.0
+    for lg in lg_order:
+        sub = trait_map[trait_map["LG"] == lg]
+        if sub.empty: continue
+        x = sub["pseudo_pos"].values.astype(float)
+        y = sub["neglog10"].values.astype(float)
+        a = np.where(sub["FDR"].astype(float) <= FDR_CUTOFF, 1.0, 0.5)
+        colors = [(0.415,0.318,0.639,alpha) for alpha in a]  # #6a51a3 with variable alpha
+        tr = circos.sectors[lg].add_track((45, 55), r_pad_ratio=0.05)
+        tr.axis()
+        tr.scatter(x, y, s=TRAIT_POINT_SIZE, color=colors)
+
+# 6) Original GWAS hits (red dots at constant radial position)
+if SHOW_ORIG_GWAS and not orig_map.empty:
+    for lg in lg_order:
+        sub = orig_map[orig_map["LG"] == lg]
+        if sub.empty: continue
+        x = sub["pseudo_pos"].values.astype(float)
+        y = np.full_like(x, 0.5, dtype=float)
+        tr = circos.sectors[lg].add_track((42, 45))
+        tr.axis()
+        tr.scatter(x, y, s=ORIG_GWAS_SIZE, color="red")
+
+# Title & legend (TE only for PRESENT classes)
+fig = circos.plotfig()
+fig.suptitle("Circos (Python): SNP density, TE majors (LTR:Gypsy/Copia), mRNA, TMRCA, GWAS", y=0.98, fontsize=12)
+
+if present_te_labels:
+    handles, labels = [], []
+    order_keys = list(TE_COLORS.keys())
+    for key in sorted(present_te_labels, key=lambda k: order_keys.index(k) if k in order_keys else 999):
+        patch = plt.Line2D([0],[0], marker="s", color="w",
+                           markerfacecolor=TE_COLORS.get(key,"#999999"),
+                           markersize=10, linestyle="None")
+        handles.append(patch); labels.append(key)
+    fig.legend(handles, labels, loc="lower center", ncol=min(len(labels), 6), frameon=False, bbox_to_anchor=(0.5, 0.02))
+
+# Save JPEG and PDF
+if OUT_JPEG:
+    fig.savefig(OUT_JPEG, dpi=DPI, bbox_inches="tight")
+if OUT_PDF:
+    fig.savefig(OUT_PDF, dpi=DPI, bbox_inches="tight")
+print(f"Saved: {OUT_JPEG} {('and ' + OUT_PDF) if OUT_PDF else ''}")
+
