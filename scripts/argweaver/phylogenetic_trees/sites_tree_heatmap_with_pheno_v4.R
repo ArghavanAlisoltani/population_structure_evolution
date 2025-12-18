@@ -1,4 +1,11 @@
 #!/usr/bin/env Rscript
+
+# Example usage:
+# Rscript sites_tree_heatmap_with_pheno_v4.R \
+#   --sites=sites_for_tree/outargs_scaffold_4_900000001_1050000000.50.sites \
+#   --pheno=PHENO_Charles_6_2025.txt \
+#   --positions=983057685,983057700 --trait=C13 \
+#   --outprefix=scaffold4_pos983057685_heatmap --tree_scale=distance --hide_labels=true
 suppressPackageStartupMessages({
   library(ape)
   library(ggplot2)

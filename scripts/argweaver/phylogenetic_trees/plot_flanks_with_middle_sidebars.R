@@ -1,4 +1,14 @@
 #!/usr/bin/env Rscript
+
+# Example usage:
+# Rscript plot_flanks_with_middle_sidebars.R \
+#   --smc=smc_files/outargs_scaffold_6_000000001_150000000.30.smc \
+#   --sites=sites_for_tree/outargs_scaffold_6_000000001_150000000.30.sites \
+#   --pheno=PHENO_Charles_6_2025.txt \
+#   --position=72516188 --flank=2 --trait=lcamphenedwb \
+#   --allele_positions=72516188 \
+#   --outdir=scaffold6_plots_sidebar --outprefix=scaffold6_flanks2_30_pos983057685_midSidebars \
+#   --format=png --x_unit=bp --bp_labels=true --tip_labels_mid=false
 suppressPackageStartupMessages({
   library(ape)
   library(ggplot2)

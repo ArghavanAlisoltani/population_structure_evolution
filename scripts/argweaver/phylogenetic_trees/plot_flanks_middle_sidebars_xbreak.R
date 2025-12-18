@@ -1,4 +1,14 @@
 #!/usr/bin/env Rscript
+
+# Example usage:
+# Rscript plot_flanks_middle_sidebars_xbreak.R \
+#   --smc=outargs_scaffold_4_900000001_1050000000.0.smc \
+#   --sites=sites_for_tree/outargs_scaffold_4_900000001_1050000000.50.sites \
+#   --pheno=PHENO_Charles_6_2025.txt \
+#   --position=983057685 --flank=2 --trait=C13 \
+#   --allele_positions=983057685 \
+#   --xbreak=manual --xbreak_at=1800 --xbreak_shrink=0.002 \
+#   --outdir=scaffold4_plots_xbreak --outprefix=scaffold4_pos983057685_1800
 suppressPackageStartupMessages({
   library(ape)
   library(ggplot2)
