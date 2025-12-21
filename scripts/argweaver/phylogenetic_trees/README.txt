@@ -39,6 +39,23 @@ Scripts and how to run them
       --tip_labels_mid=false
     ```
 
+Rscript plot_flanks_mid_optional_sidebars_gap_v6.R \
+  --smc=smc_files/outargs_scaffold_4_900000001_1050000000.0.smc \
+  --sites=sites_for_tree/outargs_scaffold_4_900000001_1050000000.0.sites \
+  --pheno=PHENO_Charles_6_2025.txt \
+  --position=983057685 \
+  --n_up=1 --n_down=1 \
+  --trait=C13 \
+  --outprefix=v6_scaffold4_pos983057685_0 \
+  --show_sidebars=true \
+  --show_tiplab_mid=true \
+  --panel_gap=0.25 \
+  --w_gap_before_allele=0 \
+  --w_proc=0.4 --w_site=0.4 --w_trait=0.4 --w_allele=0.4 \
+  --title_size=11 --axis_text_size=9 --axis_title_size=10 --tiplab_size=2.2 \
+  --pdf=true --png=true --width=22 --height=12
+
+
 - **sites_tree_heatmap_with_pheno_v4.R** – Builds a Neighbor-Joining tree from a `.sites` file, overlays allele calls for selected positions as a heatmap, and joins phenotype values. Writes both the tree (`.nwk`) and the plotted figure with the chosen prefix.
   - Example:
     ```
