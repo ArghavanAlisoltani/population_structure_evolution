@@ -3,7 +3,43 @@ ARGweaver phylogenetic tree plotting helpers
 This folder contains three R scripts that turn ARGweaver .smc/.sites output and phenotype tables into publication-ready phylogenetic plots. Each script can be run directly with `Rscript` and supports command-line arguments to customize the region, flanking windows, and annotation panels.
 
 Scripts and how to run them
----------------------------
+--------------------------
+Rscript plot_flanks_mid_optional_sidebars_gap_v5_Aria_manual.R \
+  --smc=smc_files/outargs_scaffold_4_900000001_1050000000.0.smc \
+  --sites=sites_for_tree/outargs_scaffold_4_900000001_1050000000.0.sites \
+  --pheno=PHENO_Charles_6_2025.txt \
+  --position=983057685 --trait=C13 \
+  --n_flanks=0 --outprefix=plots/scaffold_4_pos983057685 \
+  --out_png=true \
+  --out_pdf=false \
+  --show_mid_sidebars=true \
+  --show_proc=true \
+  --show_site=true \
+  --show_trait=true \
+  --show_allele=true \
+  --show_tip_labels_mid=true \
+  --tip_label_size=1.8 \
+  --font_title=15 \
+  --font_axis_text=10 \
+  --font_axis_title=12 \
+  --font_legend_title=10 \
+  --font_legend_text=12 \
+  --panel_gap=0.4 \
+  --panel_margin_pt=6 \
+  --sidebar_gap=0 \
+  --gap_before_allele=0 \
+  --w_tree=4.5 \
+  --w_proc=0.7 \
+  --w_site=0.7 \
+  --w_trait=0.7 \
+  --w_allele=0.7 \
+  --w_gap_outer=0 \
+  --w_gap_sidebar=0 \
+  --w_gap_allele=0
+
+
+
+
 - **plot_flanks_middle_sidebars_xbreak.R** – Plots the tree covering a focal SNP with configurable upstream/downstream flanks, optional manual crossover lines, phenotype barplots, and allele sidebars. Outputs trees plus per-figure metadata into `--outdir` with prefix `--outprefix`.
   - Example:
     ```
