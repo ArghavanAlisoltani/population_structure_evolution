@@ -40,6 +40,8 @@ Rscript plot_flanks_mid_optional_sidebars_gap_v5_Aria_manual.R \
 
 
 
+
+
 - **plot_flanks_middle_sidebars_xbreak.R** – Plots the tree covering a focal SNP with configurable upstream/downstream flanks, optional manual crossover lines, phenotype barplots, and allele sidebars. Outputs trees plus per-figure metadata into `--outdir` with prefix `--outprefix`.
   - Example:
     ```
