@@ -37,8 +37,6 @@ Rscript plot_flanks_mid_optional_sidebars_gap_v5_Aria_manual.R \
   --w_gap_sidebar=0 \
   --w_gap_allele=0
 
-
-
 Rscript plot_flanks_mid_optional_sidebars_gap_v5_Aria_manual.R \
   --smc=outargs_scaffold_8_1050000001_1200000000.10a.smc \
   --sites=outargs_scaffold_8_1050000001_1200000000.10a.sites \
