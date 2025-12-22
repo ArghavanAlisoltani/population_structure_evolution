@@ -73,6 +73,42 @@ Rscript plot_flanks_mid_optional_sidebars_gap_v5_Aria_manual.R \
   --w_gap_allele=0
 
 
+Rscript plot_flanks_mid_optional_sidebars_gap_v5_Aria_manual.R \
+  --smc=smc_files/outargs_scaffold_31_000000001_013421136.0.smc \
+  --sites=sites_for_tree/outargs_scaffold_31_000000001_013421136.0.sites \
+  --pheno=PHENO_Charles_6_2025.txt \
+  --position=4124403 --trait=lDECLb \
+  --n_flanks=0 --outprefix=plots/scaffold_31_pos4124403_lDECLb \
+  --out_png=true \
+  --out_pdf=false \
+  --show_mid_sidebars=true \
+  --show_proc=true \
+  --show_site=true \
+  --show_trait=true \
+  --show_allele=true \
+  --show_tip_labels_mid=true \
+  --tip_label_size=1.8 \
+  --font_title=15 \
+  --font_axis_text=10 \
+  --font_axis_title=12 \
+  --font_legend_title=10 \
+  --font_legend_text=12 \
+  --panel_gap=0.4 \
+  --panel_margin_pt=6 \
+  --sidebar_gap=0 \
+  --gap_before_allele=0 \
+  --w_tree=4.5 \
+  --w_proc=0.7 \
+  --w_site=0.7 \
+  --w_trait=0.7 \
+  --w_allele=0.7 \
+  --w_gap_outer=0 \
+  --w_gap_sidebar=0 \
+  --w_gap_allele=0
+
+#####################
+# v8 automatic file finder
+######################
 Dec_16_2025 % Rscript plot_flanks_mid_auto_files_multiRep_v8_4.R \
   --smc_dir=smc_files \
   --sites_dir=sites_for_tree \
@@ -93,6 +129,8 @@ Dec_16_2025 % Rscript plot_flanks_mid_auto_files_multiRep_v8_4.R \
   --w_proc=0.45 --w_site=0.45 --w_trait=0.45 --w_allele=0.45 \
   --font_title=11 --font_axis_text=9 --font_axis_title=10 --tip_label_size=2.2 \
   --pdf=false --png=true --width=22 --height=11
+
+
 
 - **plot_flanks_middle_sidebars_xbreak.R** – Plots the tree covering a focal SNP with configurable upstream/downstream flanks, optional manual crossover lines, phenotype barplots, and allele sidebars. Outputs trees plus per-figure metadata into `--outdir` with prefix `--outprefix`.
   - Example:
