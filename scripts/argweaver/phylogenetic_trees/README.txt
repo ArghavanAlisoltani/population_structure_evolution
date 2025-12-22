@@ -73,6 +73,26 @@ Rscript plot_flanks_mid_optional_sidebars_gap_v5_Aria_manual.R \
   --w_gap_allele=0
 
 
+Dec_16_2025 % Rscript plot_flanks_mid_auto_files_multiRep_v8_4.R \
+  --smc_dir=smc_files \
+  --sites_dir=sites_for_tree \
+  --scaffold=scaffold_4 \
+  --position=983057685 \
+  --pheno=PHENO_Charles_6_2025.txt \
+  --trait=C13 \
+  --n_up=0 --n_down=0 \
+  --replicates=0,10,20,30,40,50 \
+  --outbase=plots_v8_4 \
+  --show_mid_sidebars=true \
+  --show_tip_labels_mid=true \
+  --sidebars_on_right=true \
+  --allele_near_tree=true \
+  --w_tree_mid=1.5 \
+  --panel_gap=0.25 \
+  --gap_before_allele=0 \
+  --w_proc=0.45 --w_site=0.45 --w_trait=0.45 --w_allele=0.45 \
+  --font_title=11 --font_axis_text=9 --font_axis_title=10 --tip_label_size=2.2 \
+  --pdf=false --png=true --width=22 --height=11
 
 - **plot_flanks_middle_sidebars_xbreak.R** – Plots the tree covering a focal SNP with configurable upstream/downstream flanks, optional manual crossover lines, phenotype barplots, and allele sidebars. Outputs trees plus per-figure metadata into `--outdir` with prefix `--outprefix`.
   - Example:
