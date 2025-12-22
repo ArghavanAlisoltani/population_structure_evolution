@@ -74,8 +74,8 @@ Rscript plot_flanks_mid_optional_sidebars_gap_v5_Aria_manual.R \
 
 
 Rscript plot_flanks_mid_optional_sidebars_gap_v5_Aria_manual.R \
-  --smc=smc_files/outargs_scaffold_1b_1200000001_1350000000.0b.smc \
-  --sites=sites_for_tree/outargs_scaffold_1b_1200000001_1350000000.0b.sites \
+  --smc=outargs_scaffold_1b_1200000001_1350000000.0b.smc \
+  --sites=outargs_scaffold_1b_1200000001_1350000000.0b.sites \
   --pheno=PHENO_Charles_6_2025.txt \
   --position=211245637 --trait=lDECLb \
   --n_flanks=0 --outprefix=plots/scaffold_1b_pos211245637_lDECLb \
