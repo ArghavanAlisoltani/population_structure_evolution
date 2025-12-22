@@ -77,6 +77,39 @@ Rscript plot_flanks_mid_optional_sidebars_gap_v5_Aria_manual.R \
   --smc=outargs_scaffold_1b_1200000001_1350000000.0b.smc \
   --sites=outargs_scaffold_1b_1200000001_1350000000.0b.sites \
   --pheno=PHENO_Charles_6_2025.txt \
+  --position=211706312 --trait=lDECLb \
+  --n_flanks=0 --outprefix=plots/scaffold_1b_pos211706312_lDECLb \
+  --out_png=true \
+  --out_pdf=false \
+  --show_mid_sidebars=true \
+  --show_proc=true \
+  --show_site=true \
+  --show_trait=true \
+  --show_allele=false \
+  --show_tip_labels_mid=true \
+  --tip_label_size=1.8 \
+  --font_title=15 \
+  --font_axis_text=10 \
+  --font_axis_title=12 \
+  --font_legend_title=10 \
+  --font_legend_text=12 \
+  --panel_gap=0.4 \
+  --panel_margin_pt=6 \
+  --sidebar_gap=0 \
+  --gap_before_allele=0 \
+  --w_tree=4.5 \
+  --w_proc=0.7 \
+  --w_site=0.7 \
+  --w_trait=0.7 \
+  --w_allele=0.7 \
+  --w_gap_outer=0 \
+  --w_gap_sidebar=0 \
+  --w_gap_allele=0
+
+Rscript plot_flanks_mid_optional_sidebars_gap_v5_Aria_manual.R \
+  --smc=outargs_scaffold_1b_1200000001_1350000000.0b.smc \
+  --sites=outargs_scaffold_1b_1200000001_1350000000.0b.sites \
+  --pheno=PHENO_Charles_6_2025.txt \
   --position=211245637 --trait=lDECLb \
   --n_flanks=0 --outprefix=plots/scaffold_1b_pos211245637_lDECLb \
   --out_png=true \
