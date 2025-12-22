@@ -175,7 +175,7 @@ Rscript plot_flanks_mid_optional_sidebars_gap_v5_Aria_manual.R \
 #####################
 # v8 automatic file finder
 ######################
-Dec_16_2025 % Rscript plot_flanks_mid_auto_files_multiRep_v8_4.R \
+Rscript plot_flanks_mid_auto_files_multiRep_v8_4.R \
   --smc_dir=smc_files \
   --sites_dir=sites_for_tree \
   --scaffold=scaffold_4 \
