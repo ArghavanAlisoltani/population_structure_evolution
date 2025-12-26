@@ -19,12 +19,20 @@ plink2 \
   --make-bed \
   --out panel
 
-# Optional but STRONGLY recommended filtering
+# Optional but STRONGLY recommended filtering two steps
 # This avoids pathological trees and speeds everything up.plink2 \
   --bfile panel  --allow-extra-chr \
   --maf 0.05 \
   --geno 0.1 \
   --indep-pairwise 50 5 0.2 \
   --out ld
+
+
+  plink2 \
+  --bfile panel  --allow-extra-chr \
+  --extract ld.prune.in \
+  --make-bed \
+  --out panel_pruned
+
 
 
