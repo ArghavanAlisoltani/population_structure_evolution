@@ -8,3 +8,4 @@ bcftools view \
 
 
 #Index it:
+bcftools index filtered_whole_Esteban_imputed.vcf.gz 
