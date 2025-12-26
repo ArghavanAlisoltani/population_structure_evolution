@@ -7,10 +7,10 @@ bcftools view \
   Imputed_whole_panel_Esteban_Soms_shared.vcf
 
 
-#Index it:
+# Index it:
 bcftools index filtered_whole_Esteban_imputed.vcf.gz 
 
-#Convert VCF → PLINK (keeps sample order stable)
+# Convert VCF → PLINK (keeps sample order stable)
 plink2 \                      
   --vcf filtered_whole_Esteban_imputed.vcf.gz \
   --allow-extra-chr \
@@ -19,10 +19,12 @@ plink2 \
   --make-bed \
   --out panel
 
-#Convert VCF → PLINK (keeps sample order stable)
-plink2 \
+# Optional but STRONGLY recommended filtering
+# This avoids pathological trees and speeds everything up.plink2 \
   --bfile panel  --allow-extra-chr \
   --maf 0.05 \
   --geno 0.1 \
   --indep-pairwise 50 5 0.2 \
   --out ld
+
+
