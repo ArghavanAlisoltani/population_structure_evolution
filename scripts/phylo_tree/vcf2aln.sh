@@ -9,3 +9,13 @@ bcftools view \
 
 #Index it:
 bcftools index filtered_whole_Esteban_imputed.vcf.gz 
+
+#Convert VCF → PLINK (keeps sample order stable)
+plink2 \                      
+  --vcf filtered_whole_Esteban_imputed.vcf.gz \
+  --allow-extra-chr \
+  --snps-only just-acgt \
+  --max-alleles 2 \
+  --make-bed \
+  --out panel
+
