@@ -19,3 +19,10 @@ plink2 \
   --make-bed \
   --out panel
 
+#Convert VCF → PLINK (keeps sample order stable)
+plink2 \
+  --bfile panel  --allow-extra-chr \
+  --maf 0.05 \
+  --geno 0.1 \
+  --indep-pairwise 50 5 0.2 \
+  --out ld
