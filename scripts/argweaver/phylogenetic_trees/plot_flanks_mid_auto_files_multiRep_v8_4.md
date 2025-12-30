@@ -23,7 +23,7 @@ Rscript plot_flanks_mid_auto_files_multiRep_v8_4.R \
   --w_tree_mid=1.5 \
   --panel_gap=0.25 \
   --gap_before_allele=0 \
-  --w_proc=0.45 --w_site=0.45 --w_trait=0.45 --w_allele=0.45 \
+  --w_proc=0.25 --w_site=0.25 --w_trait=0.25 --w_allele=0.25 \
   --font_title=11 --font_axis_text=9 --font_axis_title=10 --tip_label_size=2.2 \
   --pdf=false --png=true --width=22 --height=14
 ```
