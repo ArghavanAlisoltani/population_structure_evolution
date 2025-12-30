@@ -28,6 +28,11 @@ This guide lists the analysis scripts in this repository, grouped by folder, wit
 | `scripts/EDTA/ltr_identity.sh` | Computes LTR identity metrics. | LTR retriever outputs (FASTA/GFF or list files). |
 | `scripts/EDTA/concat_passlists.sh` | Concatenates EDTA pass lists for combined processing. | EDTA passlist files. |
 
+## `scripts/BetaScan`
+| Script | What it does | Input file(s) |
+| --- | --- | --- |
+| `scripts/BetaScan/pre_processing_scripts.sh` | Pre-filters VCFs and converts to PLINK/PHYLIP/FASTA alignments for downstream selection scans. | VCFs, plus PLINK/seqmagick outputs. |
+
 ## `scripts/FST`
 | Script | What it does | Input file(s) |
 | --- | --- | --- |
@@ -206,7 +211,9 @@ This guide lists the analysis scripts in this repository, grouped by folder, wit
 | Script | What it does | Input file(s) |
 | --- | --- | --- |
 | `scripts/argweaver/phylogenetic_trees/auto_tree_contrib_sites_stats_v2.R` | Summarizes contributing sites for tree building. | Site-level tree contribution tables. |
+| `scripts/argweaver/phylogenetic_trees/auto_tree_contrib_sites_stats_v2_1.R` | CLI workflow to summarize contributing sites from ARGweaver `.smc`/`.sites` files. | ARGweaver `.smc` and `.sites` files. |
 | `scripts/argweaver/phylogenetic_trees/auto_tree_informative_sites_stats_v1.R` | Summarizes informative sites for trees. | Site-level informative-sites tables. |
+| `scripts/argweaver/phylogenetic_trees/alignment/GPT_alignment_viz.R` | Extracts selected `.sites` positions, outputs FASTA, and plots base alignment tiles. | ARGweaver `.sites` files with selected positions. |
 | `scripts/argweaver/phylogenetic_trees/plot_flanks_mid_auto_files_multiRep_v8_4.R` | Plots trees across flanks/middle with multiple replicates. | Tree output files per region. |
 | `scripts/argweaver/phylogenetic_trees/plot_flanks_mid_optional_sidebars_gap_v3.R` | Plots trees with optional sidebars (v3). | Tree output files per region. |
 | `scripts/argweaver/phylogenetic_trees/plot_flanks_mid_optional_sidebars_gap_v5_Aria_manual.R` | Plots trees with optional sidebars (v5). | Tree output files per region. |
@@ -219,6 +226,9 @@ This guide lists the analysis scripts in this repository, grouped by folder, wit
 | --- | --- | --- |
 | `scripts/argweaver/phylogenetic_trees/tree_sites/build_tree_from_sites_dir.py` | Builds trees from per-site alignment directories. | Directory of per-site alignment files. |
 | `scripts/argweaver/phylogenetic_trees/tree_sites/compute_pdist_from_sites_dir.py` | Computes pairwise distances from per-site alignments. | Directory of per-site alignment files. |
+| `scripts/argweaver/phylogenetic_trees/tree_sites/concat_sites_rep0_scaffold_order.R` | Concatenates replicate-0 `.sites` files into scaffold-ordered FASTA/PHYLIP alignments. | ARGweaver `.sites` files. |
+| `scripts/argweaver/phylogenetic_trees/tree_sites/fasttree.sh` | Runs FastTreeMP on concatenated FASTA alignments. | FASTA alignment from concatenated `.sites`. |
+| `scripts/argweaver/phylogenetic_trees/tree_sites/iqtree.sh` | Runs IQ-TREE model selection and support on concatenated PHYLIP alignments. | PHYLIP alignment from concatenated `.sites`. |
 
 ### `scripts/argweaver/py_viz_slide`
 | Script | What it does | Input file(s) |
@@ -235,3 +245,15 @@ This guide lists the analysis scripts in this repository, grouped by folder, wit
 | `scripts/argweaver/visualization/make_tmrca_arg_deck.py` | Builds a slide deck/figure set for TMRCA results. | TMRCA summary tables + plot outputs. |
 | `scripts/argweaver/visualization/plot_tmrca_genomewide_with_ci.R` | Plots genome-wide TMRCA with confidence intervals. | Genome-wide TMRCA summary table. |
 | `scripts/argweaver/visualization/plot_tmrca_genomewide_with_ci_v2.R` | Plots genome-wide TMRCA with confidence intervals (v2). | Genome-wide TMRCA summary table. |
+
+### `scripts/argweaver/TMRCA_FST`
+| Script | What it does | Input file(s) |
+| --- | --- | --- |
+| `scripts/argweaver/TMRCA_FST/FST_TMRCA_association_v3.R` | Merges per-site FST with TMRCA segments and produces regression/summary plots. | Per-site FST table + TMRCA segment table. |
+| `scripts/argweaver/TMRCA_FST/FST_staritified_meanTMRCA_v1.R` | Stratifies TMRCA classes and compares high-FST contrasts with scatter/bar summaries. | Merged FST + TMRCA table. |
+| `scripts/argweaver/TMRCA_FST/combined_FST_procs_tmrca_v1.R` | Runs joint outlier/quadrant scans and stratified TMRCA–FST analyses. | Merged FST + TMRCA table. |
+
+## `scripts/phylo_tree`
+| Script | What it does | Input file(s) |
+| --- | --- | --- |
+| `scripts/phylo_tree/vcf2aln.sh` | Converts VCFs to PLINK, PHYLIP, and FASTA alignments for phylogenetic inference. | VCF files plus PLINK/seqmagick outputs. |
