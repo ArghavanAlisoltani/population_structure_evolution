@@ -9,11 +9,12 @@ Rscript plot_flanks_mid_auto_files_multiRep_v8_4.R \
   --sites_dir=sites_for_tree \
   --scaffold=scaffold_4 \
   --position=983057685 \
+  --position=983057685,983057694,983057707,983057714,983057718,983057724 \
   --pheno=PHENO_Charles_6_2025.txt \
   --trait=C13 \
   --n_up=0 --n_down=0 \
-  --replicates=0,10,20,30,40,50 \
-  --outbase=plots_v8 \
+  --replicates=0 \
+  --outbase=plots_v8-4multiple \
   --show_mid_sidebars=true \
   --show_tip_labels_mid=true \
   --sidebars_on_right=true \
