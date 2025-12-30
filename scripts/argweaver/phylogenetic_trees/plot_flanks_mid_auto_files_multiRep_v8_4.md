@@ -9,7 +9,7 @@ Rscript plot_flanks_mid_auto_files_multiRep_v8_4.R \
   --sites_dir=sites_for_tree \
   --scaffold=scaffold_4 \
   --position=983057685 \
-  --position=983057685,983057694,983057707,983057714,983057718,983057724 \
+  --positions=983057685,983057694,983057707,983057714,983057718,983057724 \
   --pheno=PHENO_Charles_6_2025.txt \
   --trait=C13 \
   --n_up=0 --n_down=0 \
@@ -17,6 +17,7 @@ Rscript plot_flanks_mid_auto_files_multiRep_v8_4.R \
   --outbase=plots_v8-4multiple \
   --show_mid_sidebars=true \
   --show_tip_labels_mid=true \
+  --show_site=false \
   --sidebars_on_right=true \
   --allele_near_tree=true \
   --w_tree_mid=1.5 \
@@ -24,7 +25,7 @@ Rscript plot_flanks_mid_auto_files_multiRep_v8_4.R \
   --gap_before_allele=0 \
   --w_proc=0.45 --w_site=0.45 --w_trait=0.45 --w_allele=0.45 \
   --font_title=11 --font_axis_text=9 --font_axis_title=10 --tip_label_size=2.2 \
-  --pdf=false --png=true --width=22 --height=11
+  --pdf=false --png=true --width=22 --height=14
 ```
 
 ## Usage
