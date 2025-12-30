@@ -18,6 +18,7 @@ Rscript plot_flanks_mid_auto_files_multiRep_v8_4.R \
   --show_mid_sidebars=true \
   --show_tip_labels_mid=true \
   --show_site=false \
+  --font_axis_text=7 \
   --sidebars_on_right=true \
   --allele_near_tree=true \
   --w_tree_mid=1.5 \
