@@ -70,7 +70,7 @@ def extract_haplotypes(vcf_path, target_scaffold, target_positions):
 if __name__ == "__main__":
     # --- CONFIGURATION ---
     # Update these values to match your requirements
-    input_vcf = "vcf.header.txt"
+    input_vcf = "Imputed_whole_panel_Esteban_Soms_shared.vcf"
     scaffold = "scaffold_4"
     positions = [983057685,983057688,983057694,983057707,983057714,983057718,983057724] 
     # (The example positions are from your provided file content)
