@@ -4,7 +4,15 @@ import os
 import sys
 import subprocess
 from collections import Counter, defaultdict
+'''
+Run example
+python3 vcf_haplotype_groups.py \
+  --vcf merged.vcf.gz \
+  --scaffold scaffold_4 \
+  --positions 983057685,983057688,983057694,983057707,983057714,983057718,983057724 \
+  --outdir hap_scaffold4
 
+'''
 DEFAULT_SITES = [
     ("scaffold_4", 983057685),
     ("scaffold_4", 983057688),
