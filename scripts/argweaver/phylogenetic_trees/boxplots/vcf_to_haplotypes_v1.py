@@ -71,8 +71,8 @@ if __name__ == "__main__":
     # --- CONFIGURATION ---
     # Update these values to match your requirements
     input_vcf = "vcf.header.txt"
-    scaffold = "scaffold_17"
-    positions = [21197, 21238, 21240, 21245, 21297, 21300, 21302] 
+    scaffold = "scaffold_4"
+    positions = [983057685,983057688,983057694,983057707,983057714,983057718,983057724] 
     # (The example positions are from your provided file content)
     
     extract_haplotypes(input_vcf, scaffold, positions)
