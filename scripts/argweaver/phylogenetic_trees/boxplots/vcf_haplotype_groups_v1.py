@@ -6,7 +6,7 @@ import subprocess
 from collections import Counter, defaultdict
 '''
 Run example
-python3 vcf_haplotype_groups.py \
+python3 vcf_haplotype_groups_v1.py \
   --vcf merged.vcf.gz \
   --scaffold scaffold_4 \
   --positions 983057685,983057688,983057694,983057707,983057714,983057718,983057724 \
