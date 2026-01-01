@@ -13,6 +13,7 @@ python3 vcf_haplotype_groups_v1.py \
   --outdir hap_scaffold4
 
 '''
+
 DEFAULT_SITES = [
     ("scaffold_4", 983057685),
     ("scaffold_4", 983057688),
@@ -280,3 +281,27 @@ def main():
         for s in sample_list:
             s1 = "".join(hap1[s])
             s2 = "".join(hap2[s])
+            h1 = seq_to_hid.get(s1, "NA")  # NA if dropped from grouping
+            h2 = seq_to_hid.get(s2, "NA")
+            geno = f"{h1}/{h2}"
+            out.write(f"{s}\t{h1}\t{h2}\t{s1}\t{s2}\t{geno}\n")
+
+    # 11) Console summary
+    print(f"[OK] Samples: {n}")
+    print(f"[OK] Sites requested: {m}")
+    print(f"[OK] Sites found: {len(found)}")
+    if missing_sites:
+        print(f"[WARN] Missing sites in VCF (filled with '{args.missing_char}'): {len(missing_sites)}", file=sys.stderr)
+        for chrom, pos in missing_sites[:20]:
+            print(f"  - {chrom}:{pos}", file=sys.stderr)
+        if len(missing_sites) > 20:
+            print("  ...", file=sys.stderr)
+
+    print(f"[OUT] {fasta_per_sample}")
+    print(f"[OUT] {groups_tsv}")
+    print(f"[OUT] {calls_tsv}")
+    print(f"[OUT] {loci_tsv}")
+    print(f"[OUT] {fasta_unique}")
+
+if __name__ == "__main__":
+    main()
