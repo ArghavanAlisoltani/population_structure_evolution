@@ -19,3 +19,9 @@ Select a target number of individuals that are maximally separated in PCA space 
 ## Notes
 - `greedy_maxmin_adaptive()` seeds with the most isolated sample and relaxes the minimum separation if no candidates meet the threshold; `polish_1swap_maxmin()` iteratively improves the minimum distance via single swaps.【F:scripts/Greedy_sample_selection.R†L30-L59】
 - Update the PCA rank or separation quantile to tune diversity; the script expects rownames on the genotype matrix to serve as IDs and echoes subsetting progress at each step.【F:scripts/Greedy_sample_selection.R†L12-L33】
+
+
+## Additional notes
+- These steps assume paths and filenames can be adjusted to match your environment.
+- When re-running, consider versioning outputs (e.g., suffixes) to avoid overwriting prior results.
+- Record software versions and key parameters alongside outputs for reproducibility.

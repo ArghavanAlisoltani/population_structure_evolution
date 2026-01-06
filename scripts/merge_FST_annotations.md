@@ -19,3 +19,9 @@ Merge per-site FST results with nearest annotation metadata, extract top signals
 ## Notes
 - Edit the FST thresholds or columns used to define “top” windows to match your study; the current value is 0.25 for each comparison.【F:scripts/merge_FST_annotations.R†L20-L24】
 - Ensure annotation columns are named consistently (`X.CHROM`, `POS`, etc.) or adjust the `paste`/`merge` logic accordingly.【F:scripts/merge_FST_annotations.R†L25-L28】
+
+
+## Additional notes
+- These steps assume paths and filenames can be adjusted to match your environment.
+- When re-running, consider versioning outputs (e.g., suffixes) to avoid overwriting prior results.
+- Record software versions and key parameters alongside outputs for reproducibility.

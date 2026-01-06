@@ -7,3 +7,9 @@ Describe what this script does and the expected inputs/outputs.
 ```bash
 python scripts/FST/te_enrichment_and_correlations_v1.py --help
 ```
+
+
+## Additional notes
+- These steps assume paths and filenames can be adjusted to match your environment.
+- When re-running, consider versioning outputs (e.g., suffixes) to avoid overwriting prior results.
+- Record software versions and key parameters alongside outputs for reproducibility.

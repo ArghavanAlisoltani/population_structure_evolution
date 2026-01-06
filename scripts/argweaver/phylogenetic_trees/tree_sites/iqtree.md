@@ -15,3 +15,9 @@ bash scripts/argweaver/phylogenetic_trees/tree_sites/iqtree.sh
 ## Notes
 - Outputs are written with the `ALL_taxa_rep0_iqtree_tree2` prefix in the current directory.
 - Adjust thread count (`-nt`) and model settings as needed for your environment.
+
+
+## Additional notes
+- These steps assume paths and filenames can be adjusted to match your environment.
+- When re-running, consider versioning outputs (e.g., suffixes) to avoid overwriting prior results.
+- Record software versions and key parameters alongside outputs for reproducibility.

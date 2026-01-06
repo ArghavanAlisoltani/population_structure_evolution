@@ -17,3 +17,9 @@ Rscript sites_tree_heatmap_with_pheno_v4.R --sites <FILE.sites> --pheno <PHENO.t
 - `--tree_scale`: Tree scaling mode `distance` or `cladogram` (default: `distance`).
 
 The script exits with a usage message unless the sites file, phenotype file, and allele positions are provided.
+
+
+## Additional notes
+- These steps assume paths and filenames can be adjusted to match your environment.
+- When re-running, consider versioning outputs (e.g., suffixes) to avoid overwriting prior results.
+- Record software versions and key parameters alongside outputs for reproducibility.

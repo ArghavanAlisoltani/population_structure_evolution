@@ -20,3 +20,9 @@ Process multiple ARGweaver TMRCA files genome-wide: harmonize columns, convert z
 ## Notes
 - `read_tm()` auto-detects 6- vs 7-column TMRCA inputs and converts zero-based starts when required.【F:scripts/Glob_tmrca_v2.R†L23-L38】
 - `split_to_windows()` expands segment coverage across fixed windows, weighting by covered bases to derive mean TMRCA and CI widths.【F:scripts/Glob_tmrca_v2.R†L40-L57】
+
+
+## Additional notes
+- These steps assume paths and filenames can be adjusted to match your environment.
+- When re-running, consider versioning outputs (e.g., suffixes) to avoid overwriting prior results.
+- Record software versions and key parameters alongside outputs for reproducibility.

@@ -16,3 +16,9 @@ Quickly inspects a specific TE on scaffold_1b and the surrounding TMRCA values, 
    Rscript Investigate_tmrca_TE_Charles.R
    ```
    The script expects the TE annotation TSV, TMRCA segment TSV, and TE-level TMRCA TSV to exist at the configured paths.
+
+
+## Additional notes
+- These steps assume paths and filenames can be adjusted to match your environment.
+- When re-running, consider versioning outputs (e.g., suffixes) to avoid overwriting prior results.
+- Record software versions and key parameters alongside outputs for reproducibility.

@@ -15,3 +15,9 @@ bash scripts/phylo_tree/vcf2aln.sh
 ## Notes
 - The script creates intermediate PLINK datasets (`panel`, `panel_pruned`) and exports `alignment.phy` and `alignment.fasta`.
 - Update filenames or filtering thresholds (`--maf`, `--geno`, `--indep-pairwise`) to match your dataset.
+
+
+## Additional notes
+- These steps assume paths and filenames can be adjusted to match your environment.
+- When re-running, consider versioning outputs (e.g., suffixes) to avoid overwriting prior results.
+- Record software versions and key parameters alongside outputs for reproducibility.

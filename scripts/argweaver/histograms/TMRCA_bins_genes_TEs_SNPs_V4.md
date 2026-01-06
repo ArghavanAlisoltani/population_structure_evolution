@@ -20,3 +20,9 @@ python TMRCA_bins_genes_TEs_SNPs_V4.py \
   --outdir tmrca_bins_out_v4
 ```
 Use `--manual-bins` for custom edges or `--dedup-overlapping-tes` to collapse overlapping TEs.
+
+
+## Additional notes
+- These steps assume paths and filenames can be adjusted to match your environment.
+- When re-running, consider versioning outputs (e.g., suffixes) to avoid overwriting prior results.
+- Record software versions and key parameters alongside outputs for reproducibility.

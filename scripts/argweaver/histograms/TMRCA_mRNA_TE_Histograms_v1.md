@@ -15,3 +15,9 @@ Builds histogram-style summaries of SNP TMRCA bins and overlays mRNA/TE overlap 
    Rscript TMRCA_mRNA_TE_Histograms_v1.R
    ```
    The script writes one TSV and three PNG figures in the working directory.
+
+
+## Additional notes
+- These steps assume paths and filenames can be adjusted to match your environment.
+- When re-running, consider versioning outputs (e.g., suffixes) to avoid overwriting prior results.
+- Record software versions and key parameters alongside outputs for reproducibility.

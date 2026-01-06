@@ -16,3 +16,9 @@ bash scripts/BetaScan/pre_processing_scripts.sh
 ## Notes
 - The script writes `scaffold_4.biallelic.tags.vcf.gz` and creates a `.csi` index with `bcftools index`.
 - Update the scaffold name and input VCF if you want to process a different region or dataset.
+
+
+## Additional notes
+- These steps assume paths and filenames can be adjusted to match your environment.
+- When re-running, consider versioning outputs (e.g., suffixes) to avoid overwriting prior results.
+- Record software versions and key parameters alongside outputs for reproducibility.

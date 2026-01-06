@@ -113,3 +113,9 @@ Rscript scripts/argweaver/phylogenetic_trees/boxplots/vcf_hap_box_plots_v1.R \
 2. Use `vcf_hap_box_plots_v1.R` to summarize haplotypes and create phenotype boxplots.
 3. If you only need FASTA haplotypes for a small set of positions, run `vcf_to_haplotypes.py`.
 
+
+
+## Additional notes
+- These steps assume paths and filenames can be adjusted to match your environment.
+- When re-running, consider versioning outputs (e.g., suffixes) to avoid overwriting prior results.
+- Record software versions and key parameters alongside outputs for reproducibility.

@@ -19,3 +19,9 @@ Visualize a single ARGweaver TMRCA file over a specified scaffold interval, flag
 ## Notes
 - `read_annotation_1ab()` maps the annotation workbook to standardized columns and provides default gene IDs when missing.【F:scripts/One_tmrca_flag_old_young_viz_v3.R†L50-L65】
 - Gene labels can be capped via `max_gene_rows` to avoid clutter on dense regions.【F:scripts/One_tmrca_flag_old_young_viz_v3.R†L27-L30】
+
+
+## Additional notes
+- These steps assume paths and filenames can be adjusted to match your environment.
+- When re-running, consider versioning outputs (e.g., suffixes) to avoid overwriting prior results.
+- Record software versions and key parameters alongside outputs for reproducibility.

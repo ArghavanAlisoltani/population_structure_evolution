@@ -18,3 +18,9 @@ Merge per-site FST values with ARGweaver TMRCA segments, then generate correlati
 ## Notes
 - The merge uses interval overlap so each SNP is mapped to its containing TMRCA segment.
 - Filtering affects the plots and filtered tables, while the merged TSV is preserved unchanged.
+
+
+## Additional notes
+- These steps assume paths and filenames can be adjusted to match your environment.
+- When re-running, consider versioning outputs (e.g., suffixes) to avoid overwriting prior results.
+- Record software versions and key parameters alongside outputs for reproducibility.
