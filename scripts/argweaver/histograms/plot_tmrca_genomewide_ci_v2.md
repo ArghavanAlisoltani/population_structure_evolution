@@ -16,3 +16,9 @@ python plot_tmrca_genomewide_ci_v2.py \
   --window-bp 1000000
 ```
 Provide scaffold lengths with `--scaffold-lengths` to scale axes; adjust plotting style via flags such as `--hide-bars` or `--plot-windowed-only`.
+
+
+## Additional notes
+- These steps assume paths and filenames can be adjusted to match your environment.
+- When re-running, consider versioning outputs (e.g., suffixes) to avoid overwriting prior results.
+- Record software versions and key parameters alongside outputs for reproducibility.

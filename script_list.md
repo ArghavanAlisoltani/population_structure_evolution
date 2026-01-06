@@ -257,3 +257,9 @@ This guide lists the analysis scripts in this repository, grouped by folder, wit
 | Script | What it does | Input file(s) |
 | --- | --- | --- |
 | `scripts/phylo_tree/vcf2aln.sh` | Converts VCFs to PLINK, PHYLIP, and FASTA alignments for phylogenetic inference. | VCF files plus PLINK/seqmagick outputs. |
+
+
+## Additional notes
+- These steps assume paths and filenames can be adjusted to match your environment.
+- When re-running, consider versioning outputs (e.g., suffixes) to avoid overwriting prior results.
+- Record software versions and key parameters alongside outputs for reproducibility.

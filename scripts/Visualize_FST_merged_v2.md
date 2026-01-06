@@ -20,3 +20,9 @@ Plot three aligned FST comparison tracks over a selected scaffold window using a
 ## Notes
 - Negative or missing FST values are coerced to zero prior to plotting.【F:scripts/Visualize_FST_merged_v2.R†L36-L44】
 - Overlapping feature counts are exported to `fst_415_overlapped.tsv` before plotting.【F:scripts/Visualize_FST_merged_v2.R†L7-L10】
+
+
+## Additional notes
+- These steps assume paths and filenames can be adjusted to match your environment.
+- When re-running, consider versioning outputs (e.g., suffixes) to avoid overwriting prior results.
+- Record software versions and key parameters alongside outputs for reproducibility.

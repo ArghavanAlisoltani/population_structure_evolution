@@ -40,3 +40,9 @@ Rscript plot_flanks_middle_sidebars_xbreak.R --smc <FILE.smc> --sites <FILE.site
 - `--w_allele`: Width for the allele sidebar (default: `0.9`).
 
 The script stops with a usage message unless the SMC, sites, phenotype files, and focal position are provided.
+
+
+## Additional notes
+- These steps assume paths and filenames can be adjusted to match your environment.
+- When re-running, consider versioning outputs (e.g., suffixes) to avoid overwriting prior results.
+- Record software versions and key parameters alongside outputs for reproducibility.

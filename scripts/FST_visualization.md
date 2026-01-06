@@ -20,3 +20,9 @@ Plot three aligned per-site FST tracks for a chosen scaffold region, using a mer
 ## Notes
 - The script guards against missing comparison columns and coerces negative/NA FST values to zero before plotting.【F:scripts/FST_visualization.R†L24-L45】
 - Overlap counts are exported to `fst_415_overlapped.tsv` prior to plotting, based on the `overlaps_feature` flag in the merged annotation table.【F:scripts/FST_visualization.R†L6-L9】
+
+
+## Additional notes
+- These steps assume paths and filenames can be adjusted to match your environment.
+- When re-running, consider versioning outputs (e.g., suffixes) to avoid overwriting prior results.
+- Record software versions and key parameters alongside outputs for reproducibility.

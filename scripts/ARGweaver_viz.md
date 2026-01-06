@@ -20,3 +20,9 @@ Visualize a single ARGweaver TMRCA track for one scaffold region, optionally fla
 ## Notes
 - The helper `read_tm_one()` auto-detects 6- vs 7-column ARGweaver TMRCA files and adjusts zero-based starts when requested.【F:scripts/ARGweaver_viz.R†L33-L40】
 - Percentile thresholds flag “young” and “old” windows based on the chosen statistic; gene labeling can be limited via `max_gene_rows`.【F:scripts/ARGweaver_viz.R†L22-L29】
+
+
+## Additional notes
+- These steps assume paths and filenames can be adjusted to match your environment.
+- When re-running, consider versioning outputs (e.g., suffixes) to avoid overwriting prior results.
+- Record software versions and key parameters alongside outputs for reproducibility.

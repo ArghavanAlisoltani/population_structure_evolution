@@ -26,3 +26,9 @@ Rscript scripts/argweaver/phylogenetic_trees/auto_tree_informative_sites_stats_v
 ## Notes
 - Produces per-position and pooled genotype/allele summaries under `<outbase>/<scaffold>_<position>/rep*/`.
 - Requires `data.table` and ARGweaver file naming of `outargs_<scaffold>_<start>_<end>.<rep>.*`.
+
+
+## Additional notes
+- These steps assume paths and filenames can be adjusted to match your environment.
+- When re-running, consider versioning outputs (e.g., suffixes) to avoid overwriting prior results.
+- Record software versions and key parameters alongside outputs for reproducibility.

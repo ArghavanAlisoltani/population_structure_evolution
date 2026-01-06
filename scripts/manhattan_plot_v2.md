@@ -19,3 +19,9 @@ Create Manhattan-style plots from tab-separated FST results by computing cumulat
 
 ## Notes
 - Scaffolds are ordered numerically based on digits in the ID (`CHROM_NUM`), enabling consistent alternating colors across chromosomes.【F:scripts/manhattan_plot_v2.R†L18-L33】【F:scripts/manhattan_plot_v2.R†L35-L39】
+
+
+## Additional notes
+- These steps assume paths and filenames can be adjusted to match your environment.
+- When re-running, consider versioning outputs (e.g., suffixes) to avoid overwriting prior results.
+- Record software versions and key parameters alongside outputs for reproducibility.

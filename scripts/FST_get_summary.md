@@ -19,3 +19,9 @@ Bin per-site vcftools FST values into predefined ranges for multiple pairwise co
 ## Notes
 - Negative FST values are coerced to zero before binning.【F:scripts/FST_get_summary.R†L28-L33】
 - Bins are defined as `<0.05`, `0.05–0.1`, `0.1–0.15`, `0.15-0.25`, and `0.25-1` with percentages computed per comparison.【F:scripts/FST_get_summary.R†L32-L39】
+
+
+## Additional notes
+- These steps assume paths and filenames can be adjusted to match your environment.
+- When re-running, consider versioning outputs (e.g., suffixes) to avoid overwriting prior results.
+- Record software versions and key parameters alongside outputs for reproducibility.

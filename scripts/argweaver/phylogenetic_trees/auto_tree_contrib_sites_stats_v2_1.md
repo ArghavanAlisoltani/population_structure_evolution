@@ -26,3 +26,9 @@ Rscript scripts/argweaver/phylogenetic_trees/auto_tree_contrib_sites_stats_v2_1.
 ## Notes
 - Outputs land in `<outbase>/<scaffold>_<position>/rep*/` with tree, site, and genotype summaries.
 - Designed for ARGweaver outputs named `outargs_<scaffold>_<start>_<end>.<rep>.*`.
+
+
+## Additional notes
+- These steps assume paths and filenames can be adjusted to match your environment.
+- When re-running, consider versioning outputs (e.g., suffixes) to avoid overwriting prior results.
+- Record software versions and key parameters alongside outputs for reproducibility.

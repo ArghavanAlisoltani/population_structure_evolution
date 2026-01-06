@@ -19,3 +19,9 @@ Draft SLURM pipeline (not used in production) for preparing genotype data: filte
 ## Notes
 - File names and thresholds are placeholders from the draft; review each step before adopting in production.
 - The script builds intermediate SNP lists per provenance to enforce within-group MAF, then intersects them to keep SNPs common to all groups.【F:scripts/never_used_prep_genotype_pipeline_v1.sh†L64-L99】
+
+
+## Additional notes
+- These steps assume paths and filenames can be adjusted to match your environment.
+- When re-running, consider versioning outputs (e.g., suffixes) to avoid overwriting prior results.
+- Record software versions and key parameters alongside outputs for reproducibility.

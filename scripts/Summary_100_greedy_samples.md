@@ -19,3 +19,9 @@ Summarize per-site vcftools FST files by binning values across multiple comparis
 ## Notes
 - Negative FST values are set to zero before binning to avoid artifacts.【F:scripts/Summary_100_greedy_samples.R†L28-L33】
 - Bin edges mirror those used in other summaries (`<0.05`, `0.05–0.1`, `0.1–0.15`, `0.15-0.25`, `0.25-1`).【F:scripts/Summary_100_greedy_samples.R†L34-L39】
+
+
+## Additional notes
+- These steps assume paths and filenames can be adjusted to match your environment.
+- When re-running, consider versioning outputs (e.g., suffixes) to avoid overwriting prior results.
+- Record software versions and key parameters alongside outputs for reproducibility.

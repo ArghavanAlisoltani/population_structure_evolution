@@ -18,3 +18,9 @@ Analyze joint FST/TMRCA patterns by scanning for outliers and stratifying FST di
 ## Notes
 - Option 1 generates quadrant/outlier plots; Option 3 bins TMRCA and compares FST distributions.
 - The script expects contrast columns like `PROC3_vs_PROC4`; adjust the `contrasts` vector if needed.
+
+
+## Additional notes
+- These steps assume paths and filenames can be adjusted to match your environment.
+- When re-running, consider versioning outputs (e.g., suffixes) to avoid overwriting prior results.
+- Record software versions and key parameters alongside outputs for reproducibility.

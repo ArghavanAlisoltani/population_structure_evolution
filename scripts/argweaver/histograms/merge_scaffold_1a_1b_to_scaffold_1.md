@@ -18,3 +18,9 @@ python merge_scaffold_1a_1b_to_scaffold_1.py \
   --scaf1a scaffold_1a --scaf1b scaffold_1b --scaf-out scaffold_1
 ```
 Use `--offset-is-1based` if the offset provided refers to a 1-based coordinate.
+
+
+## Additional notes
+- These steps assume paths and filenames can be adjusted to match your environment.
+- When re-running, consider versioning outputs (e.g., suffixes) to avoid overwriting prior results.
+- Record software versions and key parameters alongside outputs for reproducibility.

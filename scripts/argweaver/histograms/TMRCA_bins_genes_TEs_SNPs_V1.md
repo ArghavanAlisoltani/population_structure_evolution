@@ -20,3 +20,9 @@ python TMRCA_bins_genes_TEs_SNPs_V1.py \
   --outdir tmrca_bins_out_v1
 ```
 Add `--bins` for custom bin edges (comma-separated) or `--nbins` to change automatic bin counts.
+
+
+## Additional notes
+- These steps assume paths and filenames can be adjusted to match your environment.
+- When re-running, consider versioning outputs (e.g., suffixes) to avoid overwriting prior results.
+- Record software versions and key parameters alongside outputs for reproducibility.

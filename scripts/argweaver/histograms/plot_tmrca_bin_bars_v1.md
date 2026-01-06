@@ -15,3 +15,9 @@ python plot_tmrca_bin_bars_v1.py \
   --out-prefix tmrca_bins_plots
 ```
 Customize colors, font sizes, and figure sizes with the provided optional arguments.
+
+
+## Additional notes
+- These steps assume paths and filenames can be adjusted to match your environment.
+- When re-running, consider versioning outputs (e.g., suffixes) to avoid overwriting prior results.
+- Record software versions and key parameters alongside outputs for reproducibility.

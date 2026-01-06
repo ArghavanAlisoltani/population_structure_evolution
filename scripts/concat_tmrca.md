@@ -19,3 +19,9 @@ Concatenate ARGweaver TMRCA outputs across scaffolds, export high-TMRCA subsets,
 ## Notes
 - Column names are harmonized whether the TMRCA files include a mode column or not; scaffolds are reordered by median TMRCA for clearer plotting.【F:scripts/concat_tmrca.R†L30-L50】
 - Violin plots mark medians (black) and means (red) and rotate scaffold labels for readability.【F:scripts/concat_tmrca.R†L51-L66】
+
+
+## Additional notes
+- These steps assume paths and filenames can be adjusted to match your environment.
+- When re-running, consider versioning outputs (e.g., suffixes) to avoid overwriting prior results.
+- Record software versions and key parameters alongside outputs for reproducibility.

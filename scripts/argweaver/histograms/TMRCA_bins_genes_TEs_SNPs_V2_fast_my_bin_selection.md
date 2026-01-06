@@ -21,3 +21,9 @@ python TMRCA_bins_genes_TEs_SNPs_V2_fast_my_bin_selection.py \
   --outdir tmrca_bins_out_v2_fast
 ```
 Use `--bins` to set manual edges or `--nbins` to alter automatic bin counts.
+
+
+## Additional notes
+- These steps assume paths and filenames can be adjusted to match your environment.
+- When re-running, consider versioning outputs (e.g., suffixes) to avoid overwriting prior results.
+- Record software versions and key parameters alongside outputs for reproducibility.

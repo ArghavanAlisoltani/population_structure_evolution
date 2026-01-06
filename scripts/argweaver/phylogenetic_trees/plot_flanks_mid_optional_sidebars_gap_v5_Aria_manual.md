@@ -44,3 +44,9 @@ Rscript plot_flanks_mid_optional_sidebars_gap_v5_Aria_manual.R --smc <FILE.smc> 
 - `--w_gap_allele`: Override gap width before the allele panel (defaults to `--gap_before_allele`).
 
 The script prints a usage message and exits when the SMC file, center position, or allele position list is missing.
+
+
+## Additional notes
+- These steps assume paths and filenames can be adjusted to match your environment.
+- When re-running, consider versioning outputs (e.g., suffixes) to avoid overwriting prior results.
+- Record software versions and key parameters alongside outputs for reproducibility.

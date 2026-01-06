@@ -78,3 +78,9 @@ Rscript plot_flanks_mid_auto_files_multiRep_v8_4.R --smc_dir <DIR> --scaffold <S
 - `--positions`: Comma-separated allele positions; falls back to `--position` when omitted.
 
 The script errors if `--smc_dir`, `--scaffold`, or `--position` are missing.
+
+
+## Additional notes
+- These steps assume paths and filenames can be adjusted to match your environment.
+- When re-running, consider versioning outputs (e.g., suffixes) to avoid overwriting prior results.
+- Record software versions and key parameters alongside outputs for reproducibility.

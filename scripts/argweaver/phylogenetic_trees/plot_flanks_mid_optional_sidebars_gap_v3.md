@@ -44,3 +44,9 @@ Rscript plot_flanks_mid_optional_sidebars_gap_v3.R --smc <FILE.smc> --position <
 - `--mid_spacer`: Optional spacer width inside the middle block (default: `0`).
 
 Sidebars require `--pheno` and/or `--sites` when the corresponding toggles are enabled; the script aborts if the required files are missing.
+
+
+## Additional notes
+- These steps assume paths and filenames can be adjusted to match your environment.
+- When re-running, consider versioning outputs (e.g., suffixes) to avoid overwriting prior results.
+- Record software versions and key parameters alongside outputs for reproducibility.

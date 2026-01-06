@@ -19,3 +19,9 @@ Rscript scripts/argweaver/phylogenetic_trees/tree_sites/concat_sites_rep0_scaffo
 ## Notes
 - The script enforces consistent haplotype order across all `.sites` files.
 - Outputs include `<outprefix>.fa`, `<outprefix>.phy`, and a TSV listing files in concatenation order.
+
+
+## Additional notes
+- These steps assume paths and filenames can be adjusted to match your environment.
+- When re-running, consider versioning outputs (e.g., suffixes) to avoid overwriting prior results.
+- Record software versions and key parameters alongside outputs for reproducibility.
